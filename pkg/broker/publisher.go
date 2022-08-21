@@ -34,7 +34,7 @@ func NewPublisher(c *resolver.ConfigMap) (*Publisher, error) {
 
 	config := &kafka.ConfigMap{
 		"bootstrap.servers":   address,
-		"acks":                0,    // 0 if no response is required, 1 if only leader response is required, -1 if all in-sync replicas' response is required
+		"acks":                1,    // 0 if no response is required, 1 if only leader response is required, -1 if all in-sync replicas' response is required
 		"go.delivery.reports": true, // Delivery reports (on delivery success/failure) will be sent on the Producer.Events() channel
 	}
 
@@ -90,8 +90,8 @@ func (p *Publisher) SendData(topic string, data *StockAggregate) error {
 			switch ev := e.(type) {
 			case *kafka.Message:
 				if ev.TopicPartition.Error != nil {
-					log.Fatalf("Delivery failed: %v\n", ev.TopicPartition.Error)
-					log.Fatalf("binary data: %v\n", ev.Value)
+					log.Printf("Delivery failed: %v\n", ev.TopicPartition.Error)
+					log.Printf("binary data: %v\n", ev.Value)
 				}
 			}
 		}
