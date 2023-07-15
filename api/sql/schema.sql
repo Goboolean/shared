@@ -1,12 +1,12 @@
 -- metadata table for product data
 CREATE TABLE product_meta (
   product_id    varchar(32) NOT NULL, /* an identifier form:{type}.{name}.{location}*/
-  product_name  varchar(32) NOT NULL, /* human readable stock name */
+  "name"        varchar(32) NOT NULL, /* human readable stock name */
   symbol        varchar(8)  NOT NULL, /* stock symbol */
   "description" text,                 /* product description */
-  "type"       varchar(8)  NOT NULL, /* examples are stock, encrypt */
-  exchange     varchar(32) NOT NULL, /* examples are kospi, nasdaq. */
-  "location"   varchar(32),          /* examples are kor, usa. when product type is coin location is null*/
+  "type"        varchar(8)  NOT NULL, /* examples are stock, encrypt */
+  exchange      varchar(32) NOT NULL, /* examples are kospi, nasdaq. */
+  "location"    varchar(32),          /* examples are kor, usa. when product type is coin location is null*/
   PRIMARY KEY (product_id)
 );
 
