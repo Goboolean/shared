@@ -24,3 +24,5 @@ JOIN stock_platform
 ON product_meta.product_id = stock_platform.product_id 
 WHERE product_meta.product_id = (?);
 
+-- name: UpdatePlatform:exec
+UPDATE stock_platform SET platform = (?), identifier = (?) WHERE product_id = (?);
