@@ -32,5 +32,5 @@ CREATE TABLE store_log (
   "status"    varchar(10) NOT NULL,
 
   PRIMARY KEY (stored_at),
-  FOREIGN KEY (product_id) REFERENCES product_meta (product_id)
+  FOREIGN KEY (product_id) REFERENCES product_meta (id)
 );
