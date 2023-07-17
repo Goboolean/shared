@@ -19,3 +19,5 @@ clean-kafka:
 
 sqlc-generate:
 	sqlc generate -f api/sql/sqlc.yml
+sqlc-check:
+	sqlc compile -f api/sql/sqlc.yml

@@ -74,6 +74,22 @@ func (p *Producer) SendRealAllocatedRollbackEvent(event *RealEvent) error {
 	return p.sendRealRollbackEvent(RealEventStatusAllocated, event)
 }
 
+func (p *Producer) SendRealCeasedEvent(event *RealEvent) error {
+	return p.sendRealEvent(RealEventStatusCeased, event)
+}
+
+func (p *Producer) SendRealCeasedRollbackEvent(event *RealEvent) error {
+	return p.sendRealRollbackEvent(RealEventStatusCeased, event)
+}
+
+func (p *Producer) SendRealFailedEvent(event *RealEvent) error {
+	return p.sendRealEvent(RealEventStatusFailed, event)
+}
+
+func (p *Producer) SendRealFailedRollbackEvent(event *RealEvent) error {
+	return p.sendRealRollbackEvent(RealEventStatusFailed, event)
+}
+
 
 
 func (c *Consumer) subscribeRealEvent(ctx context.Context, topic string, callback func(*RealEvent)) error {
@@ -152,6 +168,7 @@ func (c *Consumer) SubscribeRealPendingEvent(ctx context.Context, impl RealPendi
 }
 
 
+
 type RealAllocatedEventListener interface {
 	OnRecieveRealAllocatedEvent(*RealEvent)
 	OnRecieveRealAllocatedRollbackEvent(*RealEvent)
@@ -166,6 +183,48 @@ func (c *Consumer) SubscribeRealAllocatedEvent(ctx context.Context, impl RealAll
 
 	if err := c.subscribeRealEvent(ctx, RealEventRollbackTopic[RealEventStatusRequested], func(event *RealEvent) {
 		impl.OnRecieveRealAllocatedRollbackEvent(event)
+	}); err != nil {
+		panic(err)
+	}
+}
+
+
+
+type RealCeasedEventListener interface {
+	OnRecieveRealCeasedEvent(*RealEvent)
+	OnRecieveRealCeasedRollbackEvent(*RealEvent)
+}
+
+func (c *Consumer) SubscribeRealCeasedEvent(ctx context.Context, impl RealCeasedEventListener) {
+	if err := c.subscribeRealEvent(ctx, RealEventTopic[RealEventStatusRequested], func(event *RealEvent) {
+		impl.OnRecieveRealCeasedEvent(event)
+	}); err != nil {
+		panic(err)
+	}
+
+	if err := c.subscribeRealEvent(ctx, RealEventRollbackTopic[RealEventStatusRequested], func(event *RealEvent) {
+		impl.OnRecieveRealCeasedRollbackEvent(event)
+	}); err != nil {
+		panic(err)
+	}
+}
+
+
+
+type RealFailedEventListener interface {
+	OnRecieveRealFailedEvent(*RealEvent)
+	OnRecieveRealFailedRollbackEvent(*RealEvent)
+}
+
+func (c *Consumer) SubscribeRealFailedEvent(ctx context.Context, impl RealFailedEventListener) {
+	if err := c.subscribeRealEvent(ctx, RealEventTopic[RealEventStatusRequested], func(event *RealEvent) {
+		impl.OnRecieveRealFailedEvent(event)
+	}); err != nil {
+		panic(err)
+	}
+
+	if err := c.subscribeRealEvent(ctx, RealEventRollbackTopic[RealEventStatusRequested], func(event *RealEvent) {
+		impl.OnRecieveRealFailedRollbackEvent(event)
 	}); err != nil {
 		panic(err)
 	}

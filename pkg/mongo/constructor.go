@@ -3,6 +3,7 @@ package mongo
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	"github.com/Goboolean/shared/pkg/resolver"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -41,11 +42,20 @@ func NewDB(c *resolver.ConfigMap) *DB {
 		panic(err)
 	}
 
-	mongoURI := fmt.Sprintf("mongodb://%s:%s@%s:%s/?maxPoolSize=20&w=majority",
-		user, password, host, port)
+	address := fmt.Sprintf("%s:%s", host, port)
+
+	u := &url.URL{
+		Scheme:   "mongodb",
+		User:     url.UserPassword(user, password),
+		Host:     address,
+		Path:     "/",
+		RawQuery: url.Values{
+			"authSource": []string{database},
+		}.Encode(),
+	}
 
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
-	opts := options.Client().ApplyURI(mongoURI).SetServerAPIOptions(serverAPI)
+	opts := options.Client().ApplyURI(u.String()).SetServerAPIOptions(serverAPI)
 
 	client, err := mongo.Connect(context.TODO(), opts)
 
@@ -61,10 +71,7 @@ func NewDB(c *resolver.ConfigMap) *DB {
 
 func (db *DB) NewTx(ctx context.Context) (resolver.Transactioner, error) {
 	session, err := db.client.StartSession()
-	if err != nil {
-		return nil, err
-	}
-	return NewTransaction(session, ctx), nil
+	return NewTransaction(session, ctx), err
 }
 
 func (db *DB) Close() error {

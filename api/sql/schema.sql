@@ -1,19 +1,36 @@
-CREATE TABLE stock_meta (
-  stock_id     varchar(32) NOT NULL,
-  stock_code   varchar(32) NOT NULL,
-  fetch_origin varchar(4)  NOT NULL,
-  stock_name   varchar(32) NOT NULL,
-  created_at   timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+/* metadata table for product data */
+CREATE TABLE product_meta (
+  id          varchar(32) NOT NULL, /* an identifier form : {type}.{name}.{location} */
+  name        varchar(32) NOT NULL, /* human readable stock name */
+  symbol      varchar(8)  NOT NULL, /* stock symbol */
+  description text,                 /* product description : can be gain by external apis, or written manually by admin */
+  type        varchar(8)  NOT NULL, /* examples are stock, encrypt */
+  exchange    varchar(32) NOT NULL, /* examples are kospi, nasdaq. */
+  location    varchar(32),          /* examples are kor, usa. when product type is coin location is null*/
+  PRIMARY KEY (id)
+);
 
-  PRIMARY KEY (stock_id),
-  UNIQUE (stock_code, fetch_origin)
+CREATE TABLE platform (
+  name        varchar(32) NOT NULL, /* available platform is buycycle, polygon, kis */
+  description text,
+  PRIMARY KEY (name)
+);
+
+CREATE TABLE product_platform (
+  product_id    varchar(32) NOT NULL,
+  platform_name SERIAL      NOT NULL, 
+  identifier    varchar(32) NOT NULL, /* a string that is used to specific stock on such platform query */
+
+  PRIMARY KEY (product_id, platform),
+  FOREIGN KEY (product_id) REFERENCES product_meta (id),
+  FOREIGN KEY (platform_name) REFERENCES platform (name)
 );
 
 CREATE TABLE store_log (
-  stock_id  varchar(32) NOT NULL,
-  stored_at timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  status    string      NOT NULL,
+  product_id  varchar(32) NOT NULL,
+  stored_at   timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "status"    varchar(10) NOT NULL,
 
-  PRIMARY KEY (stored_at, stock_id),
-  FOREIGN KEY (stock_id) REFERENCES stock_meta (stock_id)
+  PRIMARY KEY (stored_at),
+  FOREIGN KEY (product_id) REFERENCES product_meta (product_id)
 );
