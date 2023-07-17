@@ -57,7 +57,7 @@ func (c *Configurator) Ping(ctx context.Context) error {
 	deadline, ok := ctx.Deadline()
 
 	if !ok {
-		return fmt.Errorf("timeout setting on ctx required")
+		return errTimeoutRequired
 	}
 
 	remaining := time.Until(deadline)
@@ -109,11 +109,11 @@ func (c *Configurator) DeleteTopic(ctx context.Context, topic string) error {
 	result, err := c.AdminClient.DeleteTopics(ctx, []string{topic})
 
 	if err != nil {
-		return errors.Wrap(err, "fatal error while deleting topic")
+		return errors.Wrap(errFatalWhileDeletingTopic, err.Error())
 	}
 
 	if err := result[0].Error; err.Code() != kafka.ErrNoError {
-		return errors.Wrap(fmt.Errorf(err.String()), "trival error while deleting topic")
+		return errors.Wrap(errTrivalWhileDeletingTopic, err.String())
 	}
 
 	return nil
@@ -127,7 +127,7 @@ func (c *Configurator) TopicExists(ctx context.Context, topic string) (bool, err
 	deadline, ok := ctx.Deadline()
 
 	if !ok {
-		return false, fmt.Errorf("timeout setting on ctx required")
+		return false, errTimeoutRequired
 	}
 
 	remaining := time.Until(deadline)
@@ -147,7 +147,7 @@ func (c *Configurator) GetTopicList(ctx context.Context) ([]string, error) {
 	deadline, ok := ctx.Deadline()
 
 	if !ok {
-		return nil, fmt.Errorf("timeout setting on ctx required")
+		return nil, errTimeoutRequired
 	}
 
 	remaining := time.Until(deadline)
