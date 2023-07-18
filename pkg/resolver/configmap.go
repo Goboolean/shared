@@ -2,8 +2,8 @@ package resolver
 
 import (
 	"fmt"
+	"reflect"
 )
-
 
 // ConfigMap is a struct that holds the configuration values as dynamic
 // its value type can be string, int, float64.
@@ -13,6 +13,12 @@ type ConfigMap map[string]interface{}
 // &ConfigMap{"KEY": value, ...}
 // The other way is to use SetKey method
 func (c *ConfigMap) SetKey(key string, value interface{}) error {
+
+	_type := reflect.TypeOf(value).Kind()
+	if _type != reflect.String && _type != reflect.Float64 && _type != reflect.Int {
+		return fmt.Errorf("value %s is not supported", _type)
+	}
+
 	(*c)[key] = value
 	return nil
 }
