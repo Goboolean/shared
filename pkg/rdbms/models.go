@@ -26,7 +26,7 @@ type ProductMetum struct {
 
 type ProductPlatform struct {
 	ProductID    string
-	PlatformName int32
+	PlatformName string
 	Identifier   string
 }
 

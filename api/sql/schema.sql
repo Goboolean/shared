@@ -18,7 +18,7 @@ CREATE TABLE platform (
 
 CREATE TABLE product_platform (
   product_id    varchar(32) NOT NULL,
-  platform_name SERIAL      NOT NULL, 
+  platform_name varchar(32) NOT NULL, 
   identifier    varchar(32) NOT NULL, /* a string that is used to specific stock on such platform query */
 
   PRIMARY KEY (product_id, platform),
@@ -32,5 +32,5 @@ CREATE TABLE store_log (
   "status"    varchar(10) NOT NULL,
 
   PRIMARY KEY (stored_at),
-  FOREIGN KEY (product_id) REFERENCES product_meta (product_id)
+  FOREIGN KEY (product_id) REFERENCES product_meta (id)
 );
