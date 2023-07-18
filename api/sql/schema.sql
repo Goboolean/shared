@@ -21,7 +21,7 @@ CREATE TABLE product_platform (
   platform_name varchar(32) NOT NULL, 
   identifier    varchar(32) NOT NULL, /* a string that is used to specific stock on such platform query */
 
-  PRIMARY KEY (product_id, platform),
+  PRIMARY KEY (product_id, platform_name),
   FOREIGN KEY (product_id) REFERENCES product_meta (id),
   FOREIGN KEY (platform_name) REFERENCES platform (name)
 );
