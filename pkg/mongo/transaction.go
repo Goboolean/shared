@@ -17,7 +17,8 @@ func (d *Transaction) Commit() error {
 }
 
 func (d *Transaction) Rollback() error {
-	return d.session.AbortTransaction(d.ctx)
+	defer d.session.EndSession(d.ctx)
+	return d.session.AbortTransaction(d.ctx);
 }
 
 func (d *Transaction) Context() context.Context {

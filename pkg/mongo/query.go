@@ -15,6 +15,8 @@ func New(db *DB) *Queries {
 	return &Queries{db: db}
 }
 
+
+
 func (q *Queries) InsertStockBatch(tx resolver.Transactioner, stock string, batch []*StockAggregate) error {
 
 	coll := q.db.client.Database(q.db.DefaultDatabase).Collection(stock)
@@ -26,12 +28,13 @@ func (q *Queries) InsertStockBatch(tx resolver.Transactioner, stock string, batc
 		docs[idx] = &batch[idx]
 	}
 
-	_, err := session.WithTransaction(tx.Context(), func(ctx mongo.SessionContext) (interface{}, error) {
-		return coll.InsertMany(ctx, docs)
+	return mongo.WithSession(tx.Context(), session, func(ctx mongo.SessionContext) error {
+		_, err := coll.InsertMany(ctx, docs)
+		return err
 	})
-
-	return err
 }
+
+
 
 func (q *Queries) FetchAllStockBatch(tx resolver.Transactioner, stock string) ([]*StockAggregate, error) {
 	results := make([]*StockAggregate, 0)
@@ -39,52 +42,49 @@ func (q *Queries) FetchAllStockBatch(tx resolver.Transactioner, stock string) ([
 	coll := q.db.client.Database(q.db.DefaultDatabase).Collection(stock)
 	session := tx.Transaction().(mongo.Session)
 
-	_, err := session.WithTransaction(tx.Context(), func(ctx mongo.SessionContext) (interface{}, error) {
+	return results, mongo.WithSession(tx.Context(), session, func(ctx mongo.SessionContext) error {
 		cursor, err := coll.Find(tx.Context(), bson.M{})
 		if err != nil {
-			return nil, err
+			return err
 		}
-		defer cursor.Close(tx.Context())
 
 		for cursor.Next(tx.Context()) {
 			var data *StockAggregate = &StockAggregate{}
 			if err := cursor.Decode(data); err != nil {
-				return nil, err
+				return err
 			}
 
 			results = append(results, data)
 		}
-		return nil, nil
-	})
 
-	return results, err
+		return cursor.Close(tx.Context())
+	})
 }
+
+
 
 func (q *Queries) FetchAllStockBatchMassive(tx resolver.Transactioner, stock string, stockChan chan<- *StockAggregate) error {
 
 	coll := q.db.client.Database(q.db.DefaultDatabase).Collection(stock)
 	session := tx.Transaction().(mongo.Session)
 
-	_, err := session.WithTransaction(tx.Context(), func(ctx mongo.SessionContext) (interface{}, error) {
-
+	return mongo.WithSession(tx.Context(), session, func(ctx mongo.SessionContext) error {
 		cursor, err := coll.Find(tx.Context(), bson.M{})
 		if err != nil {
-			return nil, err
+			return err
 		}
-		defer cursor.Close(tx.Context())
 
 		for cursor.Next(tx.Context()) {
 			var data *StockAggregate
 			if err := cursor.Decode(&data); err != nil {
-				return nil, err
+				return err
 			}
 
 			stockChan <- data
 		}
-		return nil, nil
-	})
 
-	return err
+		return cursor.Close(tx.Context())
+	})
 }
 
 func (q *Queries) ClearAllStockData(tx resolver.Transactioner, stock string) error {
@@ -92,9 +92,8 @@ func (q *Queries) ClearAllStockData(tx resolver.Transactioner, stock string) err
 	coll := q.db.client.Database(q.db.DefaultDatabase).Collection(stock)
 	session := tx.Transaction().(mongo.Session)
 
-	_, err := session.WithTransaction(tx.Context(), func(ctx mongo.SessionContext) (interface{}, error) {
-		return coll.DeleteMany(ctx, bson.D{})
+	return mongo.WithSession(tx.Context(), session, func(ctx mongo.SessionContext) error {
+		_, err := coll.DeleteMany(ctx, bson.D{})
+		return err
 	})
-
-	return err
 }
