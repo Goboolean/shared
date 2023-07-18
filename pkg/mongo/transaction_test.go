@@ -67,3 +67,30 @@ func Test_Rollback(t *testing.T) {
 		return
 	}
 }
+
+
+
+func Test_CommitAfterRollback(t *testing.T) {
+
+	tx, err := instance.NewTx(context.Background())
+	if err != nil {
+		t.Errorf("NewTx() failed: %v", err)
+		return
+	}
+
+	if err := queries.InsertStockBatch(tx, stockName, stockBatch); err != nil {
+		t.Errorf("FetchAllStockBatch() failed: %v", err)
+		return
+	}
+
+	if err := tx.Rollback(); err != nil {
+		t.Errorf("Rollback() failed: %v", err)
+		return
+	}
+
+	if err := tx.Commit(); err == nil {
+		t.Errorf("Commit() = nil, expected = error")
+		return
+	}
+
+}
