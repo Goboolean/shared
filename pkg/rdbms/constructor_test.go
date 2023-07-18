@@ -58,7 +58,3 @@ func Test_Constructor(t *testing.T) {
 
 
 
-
-func Test_Transaction(t *testing.T) {
-	
-}
