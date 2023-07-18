@@ -7,8 +7,6 @@ import (
 	"github.com/Goboolean/shared/pkg/rdbms"
 	"github.com/Goboolean/shared/pkg/resolver"
 	"github.com/joho/godotenv"
-
-	_ "github.com/lib/pq"
 )
 
 var (
@@ -43,7 +41,7 @@ func SetupPSQL() {
 		"DATABASE": os.Getenv("PSQL_DATABASE"),
 	})
 
-	queries = rdbms.New(db)
+	queries = db.NewQueries()
 }
 
 func TeardownPSQL() {
@@ -56,4 +54,11 @@ func Test_Constructor(t *testing.T) {
 	if err := db.Ping(); err != nil {
 		t.Errorf("Ping() failed: %v", err)
 	}
+}
+
+
+
+
+func Test_Transaction(t *testing.T) {
+	
 }
