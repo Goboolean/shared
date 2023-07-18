@@ -47,7 +47,7 @@ func (q *Queries) FetchAllStockBatch(tx resolver.Transactioner, stock string) ([
 		defer cursor.Close(tx.Context())
 
 		for cursor.Next(tx.Context()) {
-			var data *StockAggregate
+			var data *StockAggregate = &StockAggregate{}
 			if err := cursor.Decode(data); err != nil {
 				return nil, err
 			}

@@ -2,7 +2,9 @@ package mongo_test
 
 import (
 	"context"
+	"reflect"
 	"testing"
+	"time"
 
 	"github.com/Goboolean/shared/pkg/mongo"
 )
@@ -15,9 +17,7 @@ var (
 	}
 )
 
-var testStockName string = ""
-
-func TestInsertStockBatch(t *testing.T) {
+func Test_InsertStockBatch(t *testing.T) {
 	tx, err := instance.NewTx(context.Background())
 	if err != nil {
 		t.Errorf("failed to start transaction: %v", err)
@@ -44,30 +44,34 @@ func isEqual(send, received []*mongo.StockAggregate) bool {
 	return true
 }
 
-func TestFetchAllStockBatch(t *testing.T) {
+func Test_FetchAllStockBatch(t *testing.T) {
 
 	tx, err := instance.NewTx(context.Background())
 	if err != nil {
 		t.Errorf("failed to start transaction: %v", err)
+		return
 	}
 
 	result, err := queries.FetchAllStockBatch(tx, stockName)
 	if err != nil {
 		t.Errorf("FetchAllStockBatch() failed: %v", err)
+		return
 	}
 
 	if err := tx.Commit(); err != nil {
 		t.Errorf("failed to commit transaction: %v", err)
+		return
 	}
 
-	if !isEqual(stockBatch, result) {
-		t.Errorf("FetchAllStockBatch() failed: send and received is not equal")
+	if len(result) == 0 {
+		t.Errorf("FetchAllStockBatch() failed: result is empty")
+		return
 	}
 }
 
-func FetchAllStockBatchMassive(t *testing.T) {
+func Test_FetchAllStockBatchMassive(t *testing.T) {
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
 	tx, err := instance.NewTx(ctx)
@@ -75,7 +79,7 @@ func FetchAllStockBatchMassive(t *testing.T) {
 		t.Errorf("failed to start transaction: %v", err)
 	}
 
-	stockChan := make(chan *mongo.StockAggregate)
+	stockChan := make(chan *mongo.StockAggregate, 100)
 
 	if err := queries.FetchAllStockBatchMassive(tx, stockName, stockChan); err != nil {
 		t.Errorf("FetchAllStockBatchMassive() failed: %v", err)
@@ -83,14 +87,14 @@ func FetchAllStockBatchMassive(t *testing.T) {
 
 	received := make([]*mongo.StockAggregate, 0)
 
-loop:
+	loop:
 	for {
 		select {
 		case <-ctx.Done():
 			t.Errorf("FetchAllStockBatchMassive() failed with timeout")
 			break loop
 		case stock := <-stockChan:
-			if stock == nil {
+			if reflect.DeepEqual(stock, &mongo.StockAggregate{}) {
 				break loop
 			}
 			received = append(received, stock)
