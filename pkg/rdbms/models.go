@@ -35,3 +35,7 @@ type StoreLog struct {
 	StoredAt  time.Time
 	Status    string
 }
+
+type TestTable struct {
+	ID int32
+}
