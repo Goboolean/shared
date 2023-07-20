@@ -84,6 +84,17 @@ func (q *Queries) GetAllStockMetaList(ctx context.Context) ([]ProductMetum, erro
 	return items, nil
 }
 
+const getStockIdBySymbol = `-- name: GetStockIdBySymbol :one
+SELECT id FROM product_meta WHERE symbol = ($1)
+`
+
+func (q *Queries) GetStockIdBySymbol(ctx context.Context, symbol string) (string, error) {
+	row := q.db.QueryRowContext(ctx, getStockIdBySymbol, symbol)
+	var id string
+	err := row.Scan(&id)
+	return id, err
+}
+
 const getStockMeta = `-- name: GetStockMeta :one
 SELECT id, "name", symbol, "description", "type", exchange,  "location"  FROM product_meta WHERE id = ($1)
 `
