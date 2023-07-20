@@ -36,3 +36,5 @@ DELETE FROM product_platform WHERE product_id = ($1) AND platform_name = ($2);
 -- name: InsertPlatformInfo :exec
 INSERT INTO product_platform (product_id, platform_name, identifier) VALUES ($1, $2, $3);
 
+-- name: GetStockIdBySymbol :one
+SELECT id FROM product_meta WHERE symbol = ($1);

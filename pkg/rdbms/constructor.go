@@ -9,6 +9,7 @@ import (
 )
 
 type PSQL struct {
+<<<<<<< Updated upstream
 	*sql.DB
 }
 
@@ -49,6 +50,61 @@ func NewDB(c *resolver.ConfigMap) *PSQL {
 	}
 
 	return &PSQL{DB: db}
+=======
+	db *sql.DB
+	q  *Queries
+}
+
+var (
+	once     sync.Once
+	instance *PSQL
+)
+
+func NewDB(c *resolver.ConfigMap) *PSQL {
+
+	once.Do(func() {
+		user, err := c.GetStringKey("USER")
+		if err != nil {
+			panic(err)
+		}
+
+		password, err := c.GetStringKey("PASSWORD")
+		if err != nil {
+			panic(err)
+		}
+
+		host, err := c.GetStringKey("HOST")
+		if err != nil {
+			panic(err)
+		}
+
+		port, err := c.GetStringKey("PORT")
+		if err != nil {
+			panic(err)
+		}
+
+		database, err := c.GetStringKey("DATABASE")
+		if err != nil {
+			panic(err)
+		}
+
+		psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+			host, port, user, password, database)
+
+		db, err := sql.Open("postgres", psqlInfo)
+
+		if err != nil {
+			panic(err)
+		}
+
+		instance = &PSQL{
+			db: db,
+			q:  New(db),
+		}
+	})
+
+	return instance
+>>>>>>> Stashed changes
 }
 
 func (p *PSQL) Close() error {
