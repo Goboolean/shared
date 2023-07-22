@@ -71,7 +71,11 @@ func NewDB(c *resolver.ConfigMap) *DB {
 
 func (db *DB) NewTx(ctx context.Context) (resolver.Transactioner, error) {
 	session, err := db.client.StartSession()
-	return NewTransaction(session, ctx), err
+	if err != nil {
+		return nil, err
+	}
+
+	return NewTransaction(session, ctx), session.StartTransaction()
 }
 
 func (db *DB) Close() error {

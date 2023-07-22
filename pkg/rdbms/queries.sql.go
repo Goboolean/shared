@@ -41,7 +41,7 @@ DELETE FROM product_platform WHERE product_id = ($1) AND platform_name = ($2)
 
 type DeletePlatformInfoParams struct {
 	ProductID    string
-	PlatformName int32
+	PlatformName string
 }
 
 func (q *Queries) DeletePlatformInfo(ctx context.Context, arg DeletePlatformInfoParams) error {
@@ -84,6 +84,17 @@ func (q *Queries) GetAllStockMetaList(ctx context.Context) ([]ProductMetum, erro
 	return items, nil
 }
 
+const getStockIdBySymbol = `-- name: GetStockIdBySymbol :one
+SELECT id FROM product_meta WHERE symbol = ($1)
+`
+
+func (q *Queries) GetStockIdBySymbol(ctx context.Context, symbol string) (string, error) {
+	row := q.db.QueryRowContext(ctx, getStockIdBySymbol, symbol)
+	var id string
+	err := row.Scan(&id)
+	return id, err
+}
+
 const getStockMeta = `-- name: GetStockMeta :one
 SELECT id, "name", symbol, "description", "type", exchange,  "location"  FROM product_meta WHERE id = ($1)
 `
@@ -119,7 +130,7 @@ type GetStockMetaWithPlatformRow struct {
 	Type         string
 	Exchange     string
 	Location     sql.NullString
-	PlatformName int32
+	PlatformName string
 	Identifier   string
 }
 
@@ -175,7 +186,7 @@ VALUES ($1, $2, $3)
 
 type InsertNewStockPlatformMetaParams struct {
 	ProductID    string
-	PlatformName int32
+	PlatformName string
 	Identifier   string
 }
 
@@ -190,7 +201,7 @@ INSERT INTO product_platform (product_id, platform_name, identifier) VALUES ($1,
 
 type InsertPlatformInfoParams struct {
 	ProductID    string
-	PlatformName int32
+	PlatformName string
 	Identifier   string
 }
 
@@ -206,7 +217,7 @@ UPDATE product_platform SET identifier = ($1) WHERE product_id = ($2) AND platfo
 type UpdatePlatformIdentifierParams struct {
 	Identifier   string
 	ProductID    string
-	PlatformName int32
+	PlatformName string
 }
 
 func (q *Queries) UpdatePlatformIdentifier(ctx context.Context, arg UpdatePlatformIdentifierParams) error {

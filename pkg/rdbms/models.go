@@ -26,7 +26,7 @@ type ProductMetum struct {
 
 type ProductPlatform struct {
 	ProductID    string
-	PlatformName int32
+	PlatformName string
 	Identifier   string
 }
 
@@ -34,4 +34,8 @@ type StoreLog struct {
 	ProductID string
 	StoredAt  time.Time
 	Status    string
+}
+
+type TestTable struct {
+	ID int32
 }
