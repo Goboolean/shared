@@ -11,10 +11,7 @@ import (
 )
 
 type PSQL struct {
-
 	db *sql.DB
-	q *Queries
-
 }
 
 var (
@@ -71,9 +68,6 @@ func NewDB(c *resolver.ConfigMap) *PSQL {
 
 		instance = &PSQL{
 			db: db,
-
-			q: New(db),
-
 		}
 	})
 
@@ -89,11 +83,11 @@ func (p *PSQL) Ping() error {
 	return p.db.Ping()
 }
 
-func (p *PSQL) NewQueries() *Queries {
-	return p.q
-}
-
 func (p *PSQL) NewTx(ctx context.Context) (resolver.Transactioner, error) {
 	tx, err := p.db.BeginTx(ctx, nil)
 	return NewTransaction(tx, ctx), err
+}
+
+func (p *PSQL) DB() *sql.DB {
+	return p.db
 }

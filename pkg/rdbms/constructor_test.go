@@ -41,7 +41,7 @@ func SetupPSQL() {
 		"DATABASE": os.Getenv("PSQL_DATABASE"),
 	})
 
-	queries = db.NewQueries()
+	queries = rdbms.New(db.DB())
 }
 
 func TeardownPSQL() {
