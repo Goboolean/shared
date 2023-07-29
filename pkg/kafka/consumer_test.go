@@ -23,7 +23,7 @@ func TeardownConsumer() {
 	}
 }
 
-func TestConsumer(t *testing.T) {
+func Test_Consumer(t *testing.T) {
 	SetupConsumer()
 	TeardownConsumer()
 }
