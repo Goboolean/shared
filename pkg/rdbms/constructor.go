@@ -88,6 +88,6 @@ func (p *PSQL) NewTx(ctx context.Context) (resolver.Transactioner, error) {
 	return NewTransaction(tx, ctx), err
 }
 
-func (p *PSQL) DB() *sql.DB {
-	return p.db
+func NewQueries(db *PSQL) *Queries {
+	return &Queries{db: db.db}
 }
