@@ -38,3 +38,6 @@ INSERT INTO product_platform (product_id, platform_name, identifier) VALUES ($1,
 
 -- name: GetStockIdBySymbol :one
 SELECT id FROM product_meta WHERE symbol = ($1);
+
+-- name: GetStoredProductList :many
+SELECT id FROM product_meta,store_log WHERE product_meta.id = store_log.product_id;

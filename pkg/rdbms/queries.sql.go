@@ -151,6 +151,33 @@ func (q *Queries) GetStockMetaWithPlatform(ctx context.Context, id string) (GetS
 	return i, err
 }
 
+const getStoredProductList = `-- name: GetStoredProductList :many
+SELECT id FROM product_meta,store_log WHERE product_meta.id = store_log.product_id
+`
+
+func (q *Queries) GetStoredProductList(ctx context.Context) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, getStoredProductList)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const insertNewStockMeta = `-- name: InsertNewStockMeta :exec
 INSERT INTO product_meta (id, "name", symbol, "description", "type", exchange, "location") 
 VALUES ($1, $2, $3, $4, $5, $6, $7)
