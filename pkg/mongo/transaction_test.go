@@ -5,8 +5,6 @@ import (
 	"testing"
 )
 
-
-
 func Test_Commit(t *testing.T) {
 
 	tx, err := instance.NewTx(context.Background())
@@ -27,8 +25,6 @@ func Test_Commit(t *testing.T) {
 	}
 
 }
-
-
 
 func Test_Rollback(t *testing.T) {
 
@@ -68,8 +64,6 @@ func Test_Rollback(t *testing.T) {
 	}
 }
 
-
-
 func Test_CommitAfterRollback(t *testing.T) {
 
 	tx, err := instance.NewTx(context.Background())
@@ -89,8 +83,6 @@ func Test_CommitAfterRollback(t *testing.T) {
 	}
 
 }
-
-
 
 func Test_CommitWithoutExec(t *testing.T) {
 

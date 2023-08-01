@@ -15,8 +15,6 @@ func New(db *DB) *Queries {
 	return &Queries{db: db}
 }
 
-
-
 func (q *Queries) InsertStockBatch(tx resolver.Transactioner, stock string, batch []*StockAggregate) error {
 
 	coll := q.db.client.Database(q.db.DefaultDatabase).Collection(stock)
@@ -33,8 +31,6 @@ func (q *Queries) InsertStockBatch(tx resolver.Transactioner, stock string, batc
 		return err
 	})
 }
-
-
 
 func (q *Queries) FetchAllStockBatch(tx resolver.Transactioner, stock string) ([]*StockAggregate, error) {
 	results := make([]*StockAggregate, 0)
@@ -60,8 +56,6 @@ func (q *Queries) FetchAllStockBatch(tx resolver.Transactioner, stock string) ([
 		return cursor.Close(tx.Context())
 	})
 }
-
-
 
 func (q *Queries) FetchAllStockBatchMassive(tx resolver.Transactioner, stock string, stockChan chan<- *StockAggregate) error {
 
@@ -96,4 +90,11 @@ func (q *Queries) ClearAllStockData(tx resolver.Transactioner, stock string) err
 		_, err := coll.DeleteMany(ctx, bson.D{})
 		return err
 	})
+}
+
+func (q *Queries) FetchAllStockNames(tx resolver.Transactioner) ([]string, error) {
+
+	res, err := q.db.client.Database(q.db.DefaultDatabase).ListCollectionNames(tx.Context(), bson.D{{}})
+
+	return res, err
 }

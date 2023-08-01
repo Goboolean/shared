@@ -87,7 +87,7 @@ func Test_FetchAllStockBatchMassive(t *testing.T) {
 
 	received := make([]*mongo.StockAggregate, 0)
 
-	loop:
+loop:
 	for {
 		select {
 		case <-ctx.Done():
@@ -104,4 +104,25 @@ func Test_FetchAllStockBatchMassive(t *testing.T) {
 	if isEqual(stockBatch, received) {
 		t.Errorf("FetchAllStockBatchMassive() failed: send and received are not equal")
 	}
+}
+
+func Test_FetchStockNames(t *testing.T) {
+
+	tx, err := instance.NewTx(context.Background())
+	if err != nil {
+		t.Errorf("NewTx() failed: %v", err)
+		return
+	}
+
+	res, err := queries.FetchAllStockNames(tx)
+	if err != nil {
+		t.Errorf("FetchAllStockBatch() failed: %v", err)
+		return
+	}
+
+	if res[0] != "asdf" {
+		t.Errorf("res[0] = %s, expected = asdf", res[0])
+		return
+	}
+
 }
