@@ -2,7 +2,6 @@ package kafka
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/Goboolean/shared/pkg/resolver"
 	"github.com/Shopify/sarama"
@@ -14,16 +13,16 @@ type Consumer struct {
 	data map[string]chan interface{}
 }
 
-func NewConsumer(c *resolver.ConfigMap) *Consumer {
+func NewConsumer(c *resolver.ConfigMap) (*Consumer, error) {
 
 	host, err := c.GetStringKey("HOST")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	port, err := c.GetStringKey("PORT")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	address := fmt.Sprintf("%s:%s", host, port)
@@ -34,13 +33,12 @@ func NewConsumer(c *resolver.ConfigMap) *Consumer {
 	consumer, err := sarama.NewConsumer([]string{address}, config)
 
 	if err != nil {
-		log.Fatalf("err: failed to laod kafka consumer: %v", err)
-		return nil
+		return nil, err
 	}
 
 	return &Consumer{
 		consumer: consumer,
-	}
+	}, nil
 }
 
 func (c *Consumer) Close() error {

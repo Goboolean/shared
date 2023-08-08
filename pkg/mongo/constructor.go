@@ -15,31 +15,31 @@ type DB struct {
 	DefaultDatabase string
 }
 
-func NewDB(c *resolver.ConfigMap) *DB {
+func NewDB(c *resolver.ConfigMap) (*DB, error) {
 
 	user, err := c.GetStringKey("USER")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	password, err := c.GetStringKey("PASSWORD")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	host, err := c.GetStringKey("HOST")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	port, err := c.GetStringKey("PORT")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	database, err := c.GetStringKey("DATABASE")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	address := fmt.Sprintf("%s:%s", host, port)
@@ -60,13 +60,13 @@ func NewDB(c *resolver.ConfigMap) *DB {
 	client, err := mongo.Connect(context.TODO(), opts)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	return &DB{
 		client:          client,
 		DefaultDatabase: database,
-	}
+	}, nil
 }
 
 func (db *DB) NewTx(ctx context.Context) (resolver.Transactioner, error) {

@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"sync"
 
 	"github.com/Goboolean/shared/pkg/resolver"
 	_ "github.com/lib/pq"
@@ -14,65 +13,46 @@ type PSQL struct {
 	db *sql.DB
 }
 
-var (
-	once sync.Once
-	instance *PSQL
-)
-
-func NewDB(c *resolver.ConfigMap) *PSQL {
 
 
-	once.Do(func() {
-		user, err := c.GetStringKey("USER")
-		if err != nil {
-			panic(err)
-		}
+func NewDB(c *resolver.ConfigMap) (*PSQL, error) {
+	user, err := c.GetStringKey("USER")
+	if err != nil {
+		return nil, err
+	}
 
+	password, err := c.GetStringKey("PASSWORD")
+	if err != nil {
+		return nil, err
+	}
 
-		password, err := c.GetStringKey("PASSWORD")
-		if err != nil {
-			panic(err)
-		}
+	host, err := c.GetStringKey("HOST")
+	if err != nil {
+		return nil, err
+	}
 
-	
+	port, err := c.GetStringKey("PORT")
+	if err != nil {
+		return nil, err
+	}
 
-		host, err := c.GetStringKey("HOST")
-		if err != nil {
-			panic(err)
-		}
+	database, err := c.GetStringKey("DATABASE")
+	if err != nil {
+		return nil, err
+	}
 
-	
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		host, port, user, password, database)
 
-		port, err := c.GetStringKey("PORT")
-		if err != nil {
-			panic(err)
-		}
+	db, err := sql.Open("postgres", psqlInfo)
 
+	if err != nil {
+		return nil, err
+	}
 
-		database, err := c.GetStringKey("DATABASE")
-		if err != nil {
-			panic(err)
-		}
-
-
-	
-		psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-			host, port, user, password, database)
-	
-		db, err := sql.Open("postgres", psqlInfo)
-	
-
-		if err != nil {
-			panic(err)
-		}
-
-		instance = &PSQL{
-			db: db,
-		}
-	})
-
-	return instance
-
+	return &PSQL{
+		db: db,
+	}, nil
 }
 
 func (p *PSQL) Close() error {

@@ -20,13 +20,18 @@ var (
 )
 
 func SetupMongo() {
-	instance = mongo.NewDB(&resolver.ConfigMap{
+
+	var err error
+	instance, err = mongo.NewDB(&resolver.ConfigMap{
 		"HOST":     os.Getenv("MONGO_HOST"),
 		"USER":     os.Getenv("MONGO_USER"),
 		"PORT":     os.Getenv("MONGO_PORT"),
 		"PASSWORD": os.Getenv("MONGO_PASS"),
 		"DATABASE": os.Getenv("MONGO_DATABASE"),
 	})
+	if err != nil {
+		panic(err)
+	}
 	queries = mongo.New(instance)
 }
 

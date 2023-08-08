@@ -19,10 +19,15 @@ var (
 )
 
 func SetupPublisher() {
-	pub = broker.NewPublisher(&resolver.ConfigMap{
+	var err error
+
+	pub, err = broker.NewPublisher(&resolver.ConfigMap{
 		"HOST": os.Getenv("KAFKA_HOST"),
 		"PORT": os.Getenv("KAFKA_PORT"),
 	})
+	if err != nil {
+		panic(err)
+	}
 }
 
 func TeardownPublisher() {

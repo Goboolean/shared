@@ -33,13 +33,17 @@ func TestMain(m *testing.M) {
 
 func SetupPSQL() {
 
-	db = rdbms.NewDB(&resolver.ConfigMap{
+	var err error
+	db, err = rdbms.NewDB(&resolver.ConfigMap{
 		"HOST":     os.Getenv("PSQL_HOST"),
 		"PORT":     os.Getenv("PSQL_PORT"),
 		"USER":     os.Getenv("PSQL_USER"),
 		"PASSWORD": os.Getenv("PSQL_PASS"),
 		"DATABASE": os.Getenv("PSQL_DATABASE"),
 	})
+	if err != nil {
+		panic(err)
+	}
 
 	queries = rdbms.NewQueries(db)
 }

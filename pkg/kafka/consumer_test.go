@@ -11,10 +11,15 @@ import (
 var sub *kafka.Consumer
 
 func SetupConsumer() {
-	sub = kafka.NewConsumer(&resolver.ConfigMap{
+	var err error
+
+	sub, err = kafka.NewConsumer(&resolver.ConfigMap{
 		"HOST": os.Getenv("KAFKA_HOST"),
 		"PORT": os.Getenv("KAFKA_PORT"),
 	})
+	if err != nil {
+		panic(err)
+	}
 }
 
 func TeardownConsumer() {

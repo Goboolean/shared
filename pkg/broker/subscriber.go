@@ -25,16 +25,16 @@ type Subscriber struct {
 	t   topicManager
 }
 
-func NewSubscriber(c *resolver.ConfigMap, ctx context.Context, lis SubscribeListener) *Subscriber {
+func NewSubscriber(c *resolver.ConfigMap, ctx context.Context, lis SubscribeListener) (*Subscriber, error) {
 
 	host, err := c.GetStringKey("HOST")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	port, err := c.GetStringKey("PORT")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	address := fmt.Sprintf("%s:%s", host, port)
@@ -49,8 +49,7 @@ func NewSubscriber(c *resolver.ConfigMap, ctx context.Context, lis SubscribeList
 	consumer, err := kafka.NewConsumer(config)
 
 	if err != nil {
-		log.Fatalf("err: failed to laod kafka consumer: %v", err)
-		return nil
+		return nil, err
 	}
 
 	instance := &Subscriber{
@@ -61,7 +60,7 @@ func NewSubscriber(c *resolver.ConfigMap, ctx context.Context, lis SubscribeList
 
 	go instance.subscribeMessage(ctx)
 
-	return instance
+	return instance, nil
 }
 
 func (s *Subscriber) subscribeMessage(ctx context.Context) {
