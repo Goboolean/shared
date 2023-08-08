@@ -14,10 +14,15 @@ import (
 var conf *broker.Configurator
 
 func SetupConfigurator() {
-	conf = broker.NewConfigurator(&resolver.ConfigMap{
+
+	var err error
+	conf, err = broker.NewConfigurator(&resolver.ConfigMap{
 		"HOST": os.Getenv("KAFKA_HOST"),
 		"PORT": os.Getenv("KAFKA_PORT"),
 	})
+	if err != nil {
+		panic(err)
+	}
 }
 
 func TeardownConfigurator() {

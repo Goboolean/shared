@@ -8,7 +8,6 @@ import (
 
 type Queries struct {
 	db *DB
-	tx *mongo.Session
 }
 
 func New(db *DB) *Queries {
@@ -48,7 +47,7 @@ func (q *Queries) FetchAllStockBatch(tx resolver.Transactioner, stock string) ([
 			return err
 		}
 
-		for cursor.Next(tx.Context()) {
+		for cursor.Next(ctx) {
 			var data *StockAggregate = &StockAggregate{}
 			if err := cursor.Decode(data); err != nil {
 				return err
@@ -74,7 +73,7 @@ func (q *Queries) FetchAllStockBatchMassive(tx resolver.Transactioner, stock str
 			return err
 		}
 
-		for cursor.Next(tx.Context()) {
+		for cursor.Next(ctx) {
 			var data *StockAggregate
 			if err := cursor.Decode(&data); err != nil {
 				return err

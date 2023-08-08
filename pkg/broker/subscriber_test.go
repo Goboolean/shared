@@ -16,10 +16,15 @@ var (
 )
 
 func SetupSubscriber() {
-	sub = broker.NewSubscriber(&resolver.ConfigMap{
+	var err error
+
+	sub, err = broker.NewSubscriber(&resolver.ConfigMap{
 		"HOST": os.Getenv("KAFKA_HOST"),
 		"PORT": os.Getenv("KAFKA_PORT"),
 	}, context.Background(), &SubscribeListenerImpl{})
+	if err != nil {
+		panic(err)
+	}
 }
 
 func TeardownSubscriber() {

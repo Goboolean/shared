@@ -16,16 +16,16 @@ type Configurator struct {
 }
 
 // Constructor throws panic when error occurs
-func NewConfigurator(c *resolver.ConfigMap) *Configurator {
+func NewConfigurator(c *resolver.ConfigMap) (*Configurator, error) {
 
 	host, err := c.GetStringKey("HOST")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	port, err := c.GetStringKey("PORT")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	address := fmt.Sprintf("%s:%s", host, port)
@@ -38,10 +38,10 @@ func NewConfigurator(c *resolver.ConfigMap) *Configurator {
 	admin, err := kafka.NewAdminClient(config)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return &Configurator{AdminClient: admin}
+	return &Configurator{AdminClient: admin}, nil
 }
 
 // It should be called before program ends to free memory

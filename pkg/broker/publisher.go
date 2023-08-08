@@ -18,16 +18,16 @@ type Publisher struct {
 	producer *kafka.Producer
 }
 
-func NewPublisher(c *resolver.ConfigMap) *Publisher {
+func NewPublisher(c *resolver.ConfigMap) (*Publisher, error) {
 
 	host, err := c.GetStringKey("HOST")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	port, err := c.GetStringKey("PORT")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	address := fmt.Sprintf("%s:%s", host, port)
@@ -40,11 +40,10 @@ func NewPublisher(c *resolver.ConfigMap) *Publisher {
 
 	producer, err := kafka.NewProducer(config)
 	if err != nil {
-		log.Fatalf("failed to create new kafka producer: %v", err)
-		return nil
+		return nil, err
 	}
 
-	return &Publisher{producer: producer}
+	return &Publisher{producer: producer}, nil
 }
 
 // It should be called before program ends to free memory
