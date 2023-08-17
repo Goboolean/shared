@@ -12,7 +12,7 @@ import (
 
 // Configurator has a role for making and deleting topic, checking topic exists, and getting topic list.
 type Configurator struct {
-	AdminClient *kafka.AdminClient
+	client *kafka.AdminClient
 }
 
 // Constructor throws panic when error occurs
@@ -35,18 +35,31 @@ func NewConfigurator(c *resolver.ConfigMap) (*Configurator, error) {
 		//"debug": "security, broker",
 	}
 
-	admin, err := kafka.NewAdminClient(config)
+	client, err := kafka.NewAdminClient(config)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &Configurator{AdminClient: admin}, nil
+	return &Configurator{client: client}, nil
 }
 
 // It should be called before program ends to free memory
 func (c *Configurator) Close() {
-	c.AdminClient.Close()
+	c.client.Close()
+
+	// If any exception occurs while closing, it will be ignored
+
+	// Error issue:
+	// Assertion failed: (r == 0), function rwlock_wrlock, file tinycthread_extra.c, line 157.
+	// SIGABRT: abort
+	// PC=0x1855ecdb8 m=12 sigcode=0
+	// signal arrived during cgo execution
+
+	defer func() {
+		recover()
+	}()
+
 }
 
 // Check if connection to kafka is alive
@@ -62,7 +75,7 @@ func (c *Configurator) Ping(ctx context.Context) error {
 
 	remaining := time.Until(deadline)
 
-	_, err := c.AdminClient.GetMetadata(nil, true, int(remaining.Milliseconds()))
+	_, err := c.client.GetMetadata(nil, true, int(remaining.Milliseconds()))
 	return err
 }
 
@@ -87,7 +100,7 @@ func (c *Configurator) CreateTopic(ctx context.Context, topic string) error {
 		ReplicationFactor: 1,
 	}
 
-	result, err := c.AdminClient.CreateTopics(ctx, []kafka.TopicSpecification{topicInfo})
+	result, err := c.client.CreateTopics(ctx, []kafka.TopicSpecification{topicInfo})
 
 	if err != nil {
 		return err
@@ -106,7 +119,7 @@ func (c *Configurator) DeleteTopic(ctx context.Context, topic string) error {
 	// It returns error when the topic does not exist
 	topic = packTopic(topic)
 
-	result, err := c.AdminClient.DeleteTopics(ctx, []string{topic})
+	result, err := c.client.DeleteTopics(ctx, []string{topic})
 
 	if err != nil {
 		return errors.Wrap(errFatalWhileDeletingTopic, err.Error())
@@ -132,7 +145,7 @@ func (c *Configurator) TopicExists(ctx context.Context, topic string) (bool, err
 
 	remaining := time.Until(deadline)
 
-	metadata, err := c.AdminClient.GetMetadata(nil, true, int(remaining.Milliseconds()))
+	metadata, err := c.client.GetMetadata(nil, true, int(remaining.Milliseconds()))
 	if err != nil {
 		return false, err
 	}
@@ -152,7 +165,7 @@ func (c *Configurator) GetTopicList(ctx context.Context) ([]string, error) {
 
 	remaining := time.Until(deadline)
 
-	metadata, err := c.AdminClient.GetMetadata(nil, true, int(remaining.Milliseconds()))
+	metadata, err := c.client.GetMetadata(nil, true, int(remaining.Milliseconds()))
 	if err != nil {
 		return nil, err
 	}
