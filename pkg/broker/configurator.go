@@ -46,7 +46,6 @@ func NewConfigurator(c *resolver.ConfigMap) (*Configurator, error) {
 
 // It should be called before program ends to free memory
 func (c *Configurator) Close() {
-	c.client.Close()
 
 	// If any exception occurs while closing, it will be ignored
 
@@ -60,6 +59,7 @@ func (c *Configurator) Close() {
 		recover()
 	}()
 
+	c.client.Close()
 }
 
 // Check if connection to kafka is alive
