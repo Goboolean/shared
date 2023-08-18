@@ -3,11 +3,15 @@ package mongo_test
 import (
 	"context"
 	"testing"
+
+	"github.com/Goboolean/shared/pkg/mongo"
 )
 
 
 
 func Test_Commit(t *testing.T) {
+
+	var stockId = "stock.goboolean.test"
 
 	tx, err := instance.NewTx(context.Background())
 	if err != nil {
@@ -15,7 +19,7 @@ func Test_Commit(t *testing.T) {
 		return
 	}
 
-	_, err = queries.FetchAllStockBatch(tx, stockName)
+	_, err = queries.FetchAllStockBatch(tx, stockId)
 	if err != nil {
 		t.Errorf("FetchAllStockBatch() failed: %v", err)
 		return
@@ -32,20 +36,25 @@ func Test_Commit(t *testing.T) {
 
 func Test_Rollback(t *testing.T) {
 
+	var (
+		stockId = "stock.goboolean.test"
+		stockBatch = []*mongo.StockAggregate{{},{},{}}
+	)
+
 	tx, err := instance.NewTx(context.Background())
 	if err != nil {
 		t.Errorf("NewTx() failed: %v", err)
 		return
 	}
 
-	batch, err := queries.FetchAllStockBatch(tx, stockName)
+	batch, err := queries.FetchAllStockBatch(tx, stockId)
 	if err != nil {
 		t.Errorf("FetchAllStockBatch() failed: %v", err)
 		return
 	}
 	count := len(batch)
 
-	if err := queries.InsertStockBatch(tx, stockName, stockBatch); err != nil {
+	if err := queries.InsertStockBatch(tx, stockId, stockBatch); err != nil {
 		t.Errorf("InsertStockBatch() failed: %v", err)
 		return
 	}
@@ -55,7 +64,7 @@ func Test_Rollback(t *testing.T) {
 		return
 	}
 
-	batch, err = queries.FetchAllStockBatch(tx, stockName)
+	batch, err = queries.FetchAllStockBatch(tx, stockId)
 	if err != nil {
 		t.Errorf("FetchAllStockBatch() failed: %v", err)
 		return
