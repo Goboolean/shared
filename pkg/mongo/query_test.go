@@ -9,21 +9,22 @@ import (
 	"github.com/Goboolean/shared/pkg/mongo"
 )
 
-var (
-	stockName  = "asdf"
-	stockBatch = []*mongo.StockAggregate{
-		{},
-		{},
-	}
-)
+
 
 func Test_InsertStockBatch(t *testing.T) {
+
+	var (
+		stockId = "stock.goboolean.test"
+		stockBatch = []*mongo.StockAggregate{{},{},{}}
+	)
+
+
 	tx, err := instance.NewTx(context.Background())
 	if err != nil {
 		t.Errorf("failed to start transaction: %v", err)
 	}
 
-	if err := queries.InsertStockBatch(tx, stockName, stockBatch); err != nil {
+	if err := queries.InsertStockBatch(tx, stockId, stockBatch); err != nil {
 		t.Errorf("failed to insert: %v", err)
 	}
 
@@ -44,7 +45,11 @@ func isEqual(send, received []*mongo.StockAggregate) bool {
 	return true
 }
 
+
+
 func Test_FetchAllStockBatch(t *testing.T) {
+
+	var stockId = "stock.goboolean.test"
 
 	tx, err := instance.NewTx(context.Background())
 	if err != nil {
@@ -52,7 +57,7 @@ func Test_FetchAllStockBatch(t *testing.T) {
 		return
 	}
 
-	result, err := queries.FetchAllStockBatch(tx, stockName)
+	result, err := queries.FetchAllStockBatch(tx, stockId)
 	if err != nil {
 		t.Errorf("FetchAllStockBatch() failed: %v", err)
 		return
@@ -69,7 +74,14 @@ func Test_FetchAllStockBatch(t *testing.T) {
 	}
 }
 
+
+
 func Test_FetchAllStockBatchMassive(t *testing.T) {
+
+	var (
+		stockId = "stock.goboolean.test"
+		stockBatch = []*mongo.StockAggregate{{},{},{}}
+	)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
@@ -81,7 +93,7 @@ func Test_FetchAllStockBatchMassive(t *testing.T) {
 
 	stockChan := make(chan *mongo.StockAggregate, 100)
 
-	if err := queries.FetchAllStockBatchMassive(tx, stockName, stockChan); err != nil {
+	if err := queries.FetchAllStockBatchMassive(tx, stockId, stockChan); err != nil {
 		t.Errorf("FetchAllStockBatchMassive() failed: %v", err)
 	}
 
@@ -105,3 +117,5 @@ func Test_FetchAllStockBatchMassive(t *testing.T) {
 		t.Errorf("FetchAllStockBatchMassive() failed: send and received are not equal")
 	}
 }
+
+
