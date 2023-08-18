@@ -86,6 +86,8 @@ func (q *Queries) FetchAllStockBatchMassive(tx resolver.Transactioner, stock str
 	})
 }
 
+
+
 func (q *Queries) ClearAllStockData(tx resolver.Transactioner, stock string) error {
 
 	coll := q.db.client.Database(q.db.DefaultDatabase).Collection(stock)
@@ -93,6 +95,20 @@ func (q *Queries) ClearAllStockData(tx resolver.Transactioner, stock string) err
 
 	return mongo.WithSession(tx.Context(), session, func(ctx mongo.SessionContext) error {
 		_, err := coll.DeleteMany(ctx, bson.D{})
+		return err
+	})
+}
+
+
+
+func (q *Queries) GetStockDataLength(tx resolver.Transactioner, stock string) (length int, err error) {
+
+	coll := q.db.client.Database(q.db.DefaultDatabase).Collection(stock)
+	session := tx.Transaction().(mongo.Session)
+	
+	return length, mongo.WithSession(tx.Context(), session, func(ctx mongo.SessionContext) error {
+		count, err := coll.CountDocuments(ctx, bson.D{})
+		length = int(count)
 		return err
 	})
 }
