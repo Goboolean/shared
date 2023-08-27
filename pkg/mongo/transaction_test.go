@@ -7,8 +7,6 @@ import (
 	"github.com/Goboolean/shared/pkg/mongo"
 )
 
-
-
 func Test_Commit(t *testing.T) {
 
 	var stockId = "stock.goboolean.test"
@@ -32,13 +30,11 @@ func Test_Commit(t *testing.T) {
 
 }
 
-
-
 func Test_Rollback(t *testing.T) {
 
 	var (
-		stockId = "stock.goboolean.test"
-		stockBatch = []*mongo.StockAggregate{{},{},{}}
+		stockId    = "stock.goboolean.test"
+		stockBatch = []*mongo.StockAggregate{{}, {}, {}}
 	)
 
 	tx, err := instance.NewTx(context.Background())
@@ -77,8 +73,6 @@ func Test_Rollback(t *testing.T) {
 	}
 }
 
-
-
 func Test_CommitAfterRollback(t *testing.T) {
 
 	tx, err := instance.NewTx(context.Background())
@@ -98,8 +92,6 @@ func Test_CommitAfterRollback(t *testing.T) {
 	}
 
 }
-
-
 
 func Test_CommitWithoutExec(t *testing.T) {
 

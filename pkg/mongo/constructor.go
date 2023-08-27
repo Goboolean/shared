@@ -45,10 +45,10 @@ func NewDB(c *resolver.ConfigMap) (*DB, error) {
 	address := fmt.Sprintf("%s:%s", host, port)
 
 	u := &url.URL{
-		Scheme:   "mongodb",
-		User:     url.UserPassword(user, password),
-		Host:     address,
-		Path:     "/",
+		Scheme: "mongodb",
+		User:   url.UserPassword(user, password),
+		Host:   address,
+		Path:   "/",
 		RawQuery: url.Values{
 			"authSource": []string{database},
 		}.Encode(),

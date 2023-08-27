@@ -14,8 +14,6 @@ func New(db *DB) *Queries {
 	return &Queries{db: db}
 }
 
-
-
 func (q *Queries) InsertStockBatch(tx resolver.Transactioner, stock string, batch []*StockAggregate) error {
 
 	coll := q.db.client.Database(q.db.DefaultDatabase).Collection(stock)
@@ -32,8 +30,6 @@ func (q *Queries) InsertStockBatch(tx resolver.Transactioner, stock string, batc
 		return err
 	})
 }
-
-
 
 func (q *Queries) FetchAllStockBatch(tx resolver.Transactioner, stock string) ([]*StockAggregate, error) {
 	results := make([]*StockAggregate, 0)
@@ -60,8 +56,6 @@ func (q *Queries) FetchAllStockBatch(tx resolver.Transactioner, stock string) ([
 	})
 }
 
-
-
 func (q *Queries) FetchAllStockBatchMassive(tx resolver.Transactioner, stock string, stockChan chan<- *StockAggregate) error {
 
 	coll := q.db.client.Database(q.db.DefaultDatabase).Collection(stock)
@@ -86,8 +80,6 @@ func (q *Queries) FetchAllStockBatchMassive(tx resolver.Transactioner, stock str
 	})
 }
 
-
-
 func (q *Queries) ClearAllStockData(tx resolver.Transactioner, stock string) error {
 
 	coll := q.db.client.Database(q.db.DefaultDatabase).Collection(stock)
@@ -99,13 +91,11 @@ func (q *Queries) ClearAllStockData(tx resolver.Transactioner, stock string) err
 	})
 }
 
-
-
 func (q *Queries) GetStockDataLength(tx resolver.Transactioner, stock string) (length int, err error) {
 
 	coll := q.db.client.Database(q.db.DefaultDatabase).Collection(stock)
 	session := tx.Transaction().(mongo.Session)
-	
+
 	return length, mongo.WithSession(tx.Context(), session, func(ctx mongo.SessionContext) error {
 		count, err := coll.CountDocuments(ctx, bson.D{})
 		length = int(count)
