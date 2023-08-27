@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package api;
 
-option go_package = "github.com/Goboolean/shared/pkg/kafka";
+option go_package = "github.com/Goboolean/shared/pkg/kafka-old";
 
 message SimEvent {
   int64 event_id  = 1;
