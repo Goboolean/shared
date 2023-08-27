@@ -59,6 +59,3 @@ func Test_Constructor(t *testing.T) {
 		t.Errorf("Ping() failed: %v", err)
 	}
 }
-
-
-
