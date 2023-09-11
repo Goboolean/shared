@@ -46,6 +46,26 @@ func (c *ConfigMap) GetStringKey(key string) (string, error) {
 }
 
 
+func (c *ConfigMap) GetStringKeyOptional(key string) (string, error) {
+
+	// If the key is not found it just returns default value false
+	// It throws an error if the value is not string
+	errMsg := fmt.Sprintf("value %s is required as string value", key)
+
+	value, exists := (*c)[key]
+	if !exists {
+		return "", nil
+	}
+
+	stringValue, ok := value.(string)
+	if !ok {
+		return "", fmt.Errorf("failed to parse as string: %s", errMsg)
+	}
+
+	return stringValue, nil
+}
+
+
 // GetIntKey returns the value of the key as int
 func (c *ConfigMap) GetIntKey(key string) (int, error) {
 
