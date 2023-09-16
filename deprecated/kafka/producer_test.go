@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Goboolean/common/pkg/kafka-old"
+	"github.com/Goboolean/common/deprecated/kafka"
 	"github.com/Goboolean/common/pkg/resolver"
 )
 
