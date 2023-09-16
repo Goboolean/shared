@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/Goboolean/shared/pkg/resolver"
+	"github.com/Goboolean/common/pkg/resolver"
 	"github.com/Shopify/sarama"
 )
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/Goboolean/shared/pkg/resolver"
+	"github.com/Goboolean/common/pkg/resolver"
 )
 
 type Transaction struct {

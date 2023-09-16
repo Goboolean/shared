@@ -1,7 +1,7 @@
 package mongo
 
 import (
-	"github.com/Goboolean/shared/pkg/resolver"
+	"github.com/Goboolean/common/pkg/resolver"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -13,8 +13,6 @@ type Queries struct {
 func New(db *DB) *Queries {
 	return &Queries{db: db}
 }
-
-
 
 func (q *Queries) InsertStockBatch(tx resolver.Transactioner, stock string, batch []*StockAggregate) error {
 
@@ -32,8 +30,6 @@ func (q *Queries) InsertStockBatch(tx resolver.Transactioner, stock string, batc
 		return err
 	})
 }
-
-
 
 func (q *Queries) FetchAllStockBatch(tx resolver.Transactioner, stock string) ([]*StockAggregate, error) {
 	results := make([]*StockAggregate, 0)
@@ -59,8 +55,6 @@ func (q *Queries) FetchAllStockBatch(tx resolver.Transactioner, stock string) ([
 		return cursor.Close(tx.Context())
 	})
 }
-
-
 
 func (q *Queries) FetchAllStockBatchMassive(tx resolver.Transactioner, stock string, stockChan chan<- *StockAggregate) error {
 
@@ -93,6 +87,18 @@ func (q *Queries) ClearAllStockData(tx resolver.Transactioner, stock string) err
 
 	return mongo.WithSession(tx.Context(), session, func(ctx mongo.SessionContext) error {
 		_, err := coll.DeleteMany(ctx, bson.D{})
+		return err
+	})
+}
+
+func (q *Queries) GetStockDataLength(tx resolver.Transactioner, stock string) (length int, err error) {
+
+	coll := q.db.client.Database(q.db.DefaultDatabase).Collection(stock)
+	session := tx.Transaction().(mongo.Session)
+
+	return length, mongo.WithSession(tx.Context(), session, func(ctx mongo.SessionContext) error {
+		count, err := coll.CountDocuments(ctx, bson.D{})
+		length = int(count)
 		return err
 	})
 }

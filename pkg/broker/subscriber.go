@@ -7,7 +7,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/Goboolean/shared/pkg/resolver"
+	"github.com/Goboolean/common/pkg/resolver"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"google.golang.org/protobuf/proto"
 )
@@ -22,7 +22,7 @@ type Subscriber struct {
 	listener SubscribeListener
 
 	ctx context.Context
-	t   topicManager
+	t   *topicManager
 }
 
 func NewSubscriber(c *resolver.ConfigMap, ctx context.Context, lis SubscribeListener) (*Subscriber, error) {
@@ -37,13 +37,18 @@ func NewSubscriber(c *resolver.ConfigMap, ctx context.Context, lis SubscribeList
 		return nil, err
 	}
 
+	group, err := c.GetStringKey("GROUP")
+	if err != nil {
+		return nil, err
+	}
+
 	address := fmt.Sprintf("%s:%s", host, port)
 
 	config := &kafka.ConfigMap{
 		"bootstrap.servers":       address,
 		"auto.offset.reset":       "earliest",
 		"socket.keepalive.enable": true,
-		"group.id":                "goboolean.group",
+		"group.id":                group,
 	}
 
 	consumer, err := kafka.NewConsumer(config)
@@ -56,6 +61,7 @@ func NewSubscriber(c *resolver.ConfigMap, ctx context.Context, lis SubscribeList
 		consumer: consumer,
 		listener: lis,
 		ctx:      ctx,
+		t:        newTopicManager(consumer),
 	}
 
 	go instance.subscribeMessage(ctx)
@@ -135,7 +141,10 @@ type topicManager struct {
 }
 
 func newTopicManager(consumer *kafka.Consumer) *topicManager {
-	return &topicManager{consumer: consumer}
+	return &topicManager{
+		consumer:  consumer,
+		topicList: make(map[string]struct{}),
+	}
 }
 
 func (t *topicManager) addTopic(topic string) error {

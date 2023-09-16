@@ -3,7 +3,7 @@ package mongo
 import (
 	"context"
 
-	"github.com/Goboolean/shared/pkg/resolver"
+	"github.com/Goboolean/common/pkg/resolver"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -18,7 +18,7 @@ func (d *Transaction) Commit() error {
 
 func (d *Transaction) Rollback() error {
 	defer d.session.EndSession(d.ctx)
-	return d.session.AbortTransaction(d.ctx);
+	return d.session.AbortTransaction(d.ctx)
 }
 
 func (d *Transaction) Context() context.Context {

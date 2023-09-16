@@ -5,15 +5,13 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/Goboolean/shared/pkg/resolver"
+	"github.com/Goboolean/common/pkg/resolver"
 	_ "github.com/lib/pq"
 )
 
 type PSQL struct {
 	db *sql.DB
 }
-
-
 
 func NewDB(c *resolver.ConfigMap) (*PSQL, error) {
 	user, err := c.GetStringKey("USER")

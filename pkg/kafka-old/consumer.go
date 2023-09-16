@@ -3,7 +3,7 @@ package kafka
 import (
 	"fmt"
 
-	"github.com/Goboolean/shared/pkg/resolver"
+	"github.com/Goboolean/common/pkg/resolver"
 	"github.com/Shopify/sarama"
 )
 
