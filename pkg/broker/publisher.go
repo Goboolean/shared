@@ -18,33 +18,32 @@ type Publisher struct {
 	producer *kafka.Producer
 }
 
-func NewPublisher(c *resolver.ConfigMap) *Publisher {
+func NewPublisher(c *resolver.ConfigMap) (*Publisher, error) {
 
 	host, err := c.GetStringKey("HOST")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	port, err := c.GetStringKey("PORT")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	address := fmt.Sprintf("%s:%s", host, port)
 
 	config := &kafka.ConfigMap{
 		"bootstrap.servers":   address,
-		"acks":                0,    // 0 if no response is required, 1 if only leader response is required, -1 if all in-sync replicas' response is required
+		"acks":                1,    // 0 if no response is required, 1 if only leader response is required, -1 if all in-sync replicas' response is required
 		"go.delivery.reports": true, // Delivery reports (on delivery success/failure) will be sent on the Producer.Events() channel
 	}
 
 	producer, err := kafka.NewProducer(config)
 	if err != nil {
-		log.Fatalf("failed to create new kafka producer: %v", err)
-		return nil
+		return nil, err
 	}
 
-	return &Publisher{producer: producer}
+	return &Publisher{producer: producer}, nil
 }
 
 // It should be called before program ends to free memory
@@ -91,8 +90,8 @@ func (p *Publisher) SendData(topic string, data *StockAggregate) error {
 			switch ev := e.(type) {
 			case *kafka.Message:
 				if ev.TopicPartition.Error != nil {
-					log.Fatalf("Delivery failed: %v\n", ev.TopicPartition.Error)
-					log.Fatalf("binary data: %v\n", ev.Value)
+					log.Printf("Delivery failed: %v\n", ev.TopicPartition.Error)
+					log.Printf("binary data: %v\n", ev.Value)
 				}
 			}
 		}

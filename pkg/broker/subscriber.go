@@ -22,19 +22,24 @@ type Subscriber struct {
 	listener SubscribeListener
 
 	ctx context.Context
-	t   topicManager
+	t   *topicManager
 }
 
-func NewSubscriber(c *resolver.ConfigMap, ctx context.Context, lis SubscribeListener) *Subscriber {
+func NewSubscriber(c *resolver.ConfigMap, ctx context.Context, lis SubscribeListener) (*Subscriber, error) {
 
 	host, err := c.GetStringKey("HOST")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	port, err := c.GetStringKey("PORT")
 	if err != nil {
-		panic(err)
+		return nil, err
+	}
+
+	group, err := c.GetStringKey("GROUP")
+	if err != nil {
+		return nil, err
 	}
 
 	address := fmt.Sprintf("%s:%s", host, port)
@@ -43,25 +48,25 @@ func NewSubscriber(c *resolver.ConfigMap, ctx context.Context, lis SubscribeList
 		"bootstrap.servers":       address,
 		"auto.offset.reset":       "earliest",
 		"socket.keepalive.enable": true,
-		"group.id":                "goboolean.group",
+		"group.id":                group,
 	}
 
 	consumer, err := kafka.NewConsumer(config)
 
 	if err != nil {
-		log.Fatalf("err: failed to laod kafka consumer: %v", err)
-		return nil
+		return nil, err
 	}
 
 	instance := &Subscriber{
 		consumer: consumer,
 		listener: lis,
 		ctx:      ctx,
+		t:        newTopicManager(consumer),
 	}
 
 	go instance.subscribeMessage(ctx)
 
-	return instance
+	return instance, nil
 }
 
 func (s *Subscriber) subscribeMessage(ctx context.Context) {
@@ -136,7 +141,10 @@ type topicManager struct {
 }
 
 func newTopicManager(consumer *kafka.Consumer) *topicManager {
-	return &topicManager{consumer: consumer}
+	return &topicManager{
+		consumer:  consumer,
+		topicList: make(map[string]struct{}),
+	}
 }
 
 func (t *topicManager) addTopic(topic string) error {

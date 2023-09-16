@@ -4,10 +4,7 @@ go 1.18
 
 require (
 	github.com/Shopify/sarama v1.38.1
-	github.com/confluentinc/confluent-kafka-go v1.9.2
 	github.com/joho/godotenv v1.5.1
-	github.com/lib/pq v1.10.9
-	github.com/pkg/errors v0.9.1
 	go.mongodb.org/mongo-driver v1.12.0
 	google.golang.org/protobuf v1.31.0
 )
@@ -18,6 +15,7 @@ require (
 	github.com/eapache/go-xerial-snappy v0.0.0-20230111030713-bf00bc1b83b6 // indirect
 	github.com/eapache/queue v1.1.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
+	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
@@ -38,4 +36,5 @@ require (
 	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 )

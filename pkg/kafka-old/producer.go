@@ -13,16 +13,16 @@ type Producer struct {
 	producer sarama.SyncProducer
 }
 
-func NewProducer(c *resolver.ConfigMap) *Producer {
+func NewProducer(c *resolver.ConfigMap) (*Producer, error) {
 
 	host, err := c.GetStringKey("HOST")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	port, err := c.GetStringKey("PORT")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	address := fmt.Sprintf("%s:%s", host, port)
@@ -33,12 +33,11 @@ func NewProducer(c *resolver.ConfigMap) *Producer {
 	config.Producer.Transaction.ID = createTransactionID()
 
 	producer, err := sarama.NewSyncProducer([]string{address}, config)
-
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return &Producer{producer: producer}
+	return &Producer{producer: producer}, nil
 }
 
 func createTransactionID() string {

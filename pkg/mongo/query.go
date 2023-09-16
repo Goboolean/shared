@@ -8,14 +8,11 @@ import (
 
 type Queries struct {
 	db *DB
-	tx *mongo.Session
 }
 
 func New(db *DB) *Queries {
 	return &Queries{db: db}
 }
-
-
 
 func (q *Queries) InsertStockBatch(tx resolver.Transactioner, stock string, batch []*StockAggregate) error {
 
@@ -34,8 +31,6 @@ func (q *Queries) InsertStockBatch(tx resolver.Transactioner, stock string, batc
 	})
 }
 
-
-
 func (q *Queries) FetchAllStockBatch(tx resolver.Transactioner, stock string) ([]*StockAggregate, error) {
 	results := make([]*StockAggregate, 0)
 
@@ -48,7 +43,7 @@ func (q *Queries) FetchAllStockBatch(tx resolver.Transactioner, stock string) ([
 			return err
 		}
 
-		for cursor.Next(tx.Context()) {
+		for cursor.Next(ctx) {
 			var data *StockAggregate = &StockAggregate{}
 			if err := cursor.Decode(data); err != nil {
 				return err
@@ -61,8 +56,6 @@ func (q *Queries) FetchAllStockBatch(tx resolver.Transactioner, stock string) ([
 	})
 }
 
-
-
 func (q *Queries) FetchAllStockBatchMassive(tx resolver.Transactioner, stock string, stockChan chan<- *StockAggregate) error {
 
 	coll := q.db.client.Database(q.db.DefaultDatabase).Collection(stock)
@@ -74,7 +67,7 @@ func (q *Queries) FetchAllStockBatchMassive(tx resolver.Transactioner, stock str
 			return err
 		}
 
-		for cursor.Next(tx.Context()) {
+		for cursor.Next(ctx) {
 			var data *StockAggregate
 			if err := cursor.Decode(&data); err != nil {
 				return err
@@ -94,6 +87,18 @@ func (q *Queries) ClearAllStockData(tx resolver.Transactioner, stock string) err
 
 	return mongo.WithSession(tx.Context(), session, func(ctx mongo.SessionContext) error {
 		_, err := coll.DeleteMany(ctx, bson.D{})
+		return err
+	})
+}
+
+func (q *Queries) GetStockDataLength(tx resolver.Transactioner, stock string) (length int, err error) {
+
+	coll := q.db.client.Database(q.db.DefaultDatabase).Collection(stock)
+	session := tx.Transaction().(mongo.Session)
+
+	return length, mongo.WithSession(tx.Context(), session, func(ctx mongo.SessionContext) error {
+		count, err := coll.CountDocuments(ctx, bson.D{})
+		length = int(count)
 		return err
 	})
 }

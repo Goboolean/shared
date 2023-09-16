@@ -9,15 +9,21 @@ import (
 
 	"github.com/Goboolean/shared/pkg/broker"
 	"github.com/Goboolean/shared/pkg/resolver"
+	"github.com/stretchr/testify/assert"
 )
 
 var conf *broker.Configurator
 
 func SetupConfigurator() {
-	conf = broker.NewConfigurator(&resolver.ConfigMap{
+
+	var err error
+	conf, err = broker.NewConfigurator(&resolver.ConfigMap{
 		"HOST": os.Getenv("KAFKA_HOST"),
 		"PORT": os.Getenv("KAFKA_PORT"),
 	})
+	if err != nil {
+		panic(err)
+	}
 }
 
 func TeardownConfigurator() {
@@ -25,80 +31,118 @@ func TeardownConfigurator() {
 }
 
 func Test_Configurator(t *testing.T) {
-	SetupConfigurator()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	SetupConfigurator()
+	defer TeardownConfigurator()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
 	if err := conf.Ping(ctx); err != nil {
 		t.Errorf("Ping() = %v", err)
 	}
-
-	cancel()
-	TeardownConfigurator()
 }
 
 func Test_CreateTopic(t *testing.T) {
 
-	var topic = "test-topic"
+	const topic = "test-topic"
+
 	SetupConfigurator()
+	defer TeardownConfigurator()
 
-	ctx, cancelFunc := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancelFunc()
+	t.Run("CreateTopic", func(t *testing.T) {
 
-	if err := conf.CreateTopic(ctx, topic); err != nil {
-		t.Errorf("CreateTopic() = %v", err)
-	}
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
 
-	exists, err := conf.TopicExists(ctx, topic)
-	if err != nil {
-		t.Errorf("TopicExists() = %v", err)
-	}
-	if !exists {
-		t.Errorf("TopicExists() = %v, expected = true", exists)
-	}
+		err := conf.CreateTopic(ctx, topic)
+		assert.NoError(t, err)
 
-	TeardownConfigurator()
+		exists, err := conf.TopicExists(ctx, topic)
+		assert.NoError(t, err)
+		assert.True(t, exists)
+	})
+
+	t.Run("CreateExitingTopic", func(t *testing.T) {
+
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+
+		err := conf.CreateTopic(ctx, "existing-topic")
+		assert.Error(t, err)
+	})
+
+	t.Cleanup(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+
+		err := conf.DeleteTopic(ctx, topic)
+		assert.NoError(t, err)
+	})
 }
 
 func Test_DeleteTopic(t *testing.T) {
 
-	var topic = "test-topic"
+	const topic = "test-topic"
+
 	SetupConfigurator()
+	defer TeardownConfigurator()
 
-	ctx, cancelFunc := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancelFunc()
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
 
-	if err := conf.DeleteTopic(ctx, topic); err != nil {
-		t.Errorf("DeleteTopic() = %v", err)
-	}
+	err := conf.CreateTopic(ctx, topic)
+	assert.NoError(t, err)
 
-	exists, err := conf.TopicExists(ctx, topic)
-	if err != nil {
-		t.Errorf("TopicExists() = %v", err)
-	}
-	if exists {
-		t.Errorf("TopicExists() = %v, expected = false", exists)
-	}
+	t.Run("DeleteTopic", func(t *testing.T) {
 
-	TeardownConfigurator()
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+
+		err := conf.DeleteTopic(ctx, topic)
+		assert.NoError(t, err)
+
+		exists, err := conf.TopicExists(ctx, topic)
+		assert.NoError(t, err)
+		assert.False(t, exists)
+	})
+
+	t.Run("DeleteNonExistingTopic", func(t *testing.T) {
+
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+
+		err := conf.DeleteTopic(ctx, "non-existent-topic")
+		assert.Error(t, err)
+	})
 }
 
 func Test_GetTopicList(t *testing.T) {
 
 	SetupConfigurator()
+	defer TeardownConfigurator()
 
-	ctx, cancelFunc := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancelFunc()
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
 
 	topicList, err := conf.GetTopicList(ctx)
-	if err != nil {
-		t.Errorf("GetTopicList() = %v", err)
-	}
+	assert.NoError(t, err)
 
 	fmt.Printf("Topic Count: %d\n", len(topicList))
 	fmt.Printf("Topic List: \n")
 	for _, topic := range topicList {
 		fmt.Println(topic)
 	}
+}
 
-	TeardownConfigurator()
+func Test_DeleteALlTopics(t *testing.T) {
+
+	SetupConfigurator()
+	defer TeardownConfigurator()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	err := conf.DeleteAllTopics(ctx)
+	assert.NoError(t, err)
 }

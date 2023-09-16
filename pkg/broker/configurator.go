@@ -15,33 +15,40 @@ type Configurator struct {
 	AdminClient *kafka.AdminClient
 }
 
-// Constructor throws panic when error occurs
-func NewConfigurator(c *resolver.ConfigMap) *Configurator {
+func NewConfigurator(c *resolver.ConfigMap) (*Configurator, error) {
 
 	host, err := c.GetStringKey("HOST")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	port, err := c.GetStringKey("PORT")
 	if err != nil {
-		panic(err)
+		return nil, err
+	}
+
+	debug, err := c.GetBoolKeyOptional("DEBUG")
+	if err != nil {
+		return nil, err
 	}
 
 	address := fmt.Sprintf("%s:%s", host, port)
 
 	config := &kafka.ConfigMap{
 		"bootstrap.servers": address,
-		//"debug": "security, broker",
+	}
+
+	if debug {
+		config.SetKey("debug", "security, broker")
 	}
 
 	admin, err := kafka.NewAdminClient(config)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return &Configurator{AdminClient: admin}
+	return &Configurator{AdminClient: admin}, nil
 }
 
 // It should be called before program ends to free memory
@@ -55,14 +62,11 @@ func (c *Configurator) Ping(ctx context.Context) error {
 	// It requires ctx to be deadline set, otherwise it will return error
 	// It will return error if there is no response within deadline
 	deadline, ok := ctx.Deadline()
-
 	if !ok {
 		return errTimeoutRequired
 	}
 
-	remaining := time.Until(deadline)
-
-	_, err := c.AdminClient.GetMetadata(nil, true, int(remaining.Milliseconds()))
+	_, err := c.AdminClient.GetMetadata(nil, true, int(time.Until(deadline).Milliseconds()))
 	return err
 }
 
@@ -88,7 +92,6 @@ func (c *Configurator) CreateTopic(ctx context.Context, topic string) error {
 	}
 
 	result, err := c.AdminClient.CreateTopics(ctx, []kafka.TopicSpecification{topicInfo})
-
 	if err != nil {
 		return err
 	}
@@ -119,20 +122,35 @@ func (c *Configurator) DeleteTopic(ctx context.Context, topic string) error {
 	return nil
 }
 
+// delete all topic
+func (c *Configurator) DeleteAllTopics(ctx context.Context) error {
+	topicList, err := c.GetTopicList(ctx)
+	if err != nil {
+		return err
+	}
+
+	result, err := c.AdminClient.DeleteTopics(ctx, topicList)
+	if err != nil {
+		return err
+	}
+
+	if err := result[0].Error; err.Code() != kafka.ErrNoError {
+		return fmt.Errorf(err.String())
+	}
+
+	return nil
+}
+
 // Check if given topic exists
 func (c *Configurator) TopicExists(ctx context.Context, topic string) (bool, error) {
-
 	topic = packTopic(topic)
 
 	deadline, ok := ctx.Deadline()
-
 	if !ok {
 		return false, errTimeoutRequired
 	}
 
-	remaining := time.Until(deadline)
-
-	metadata, err := c.AdminClient.GetMetadata(nil, true, int(remaining.Milliseconds()))
+	metadata, err := c.AdminClient.GetMetadata(nil, true, int(time.Until(deadline).Milliseconds()))
 	if err != nil {
 		return false, err
 	}
@@ -145,14 +163,11 @@ func (c *Configurator) TopicExists(ctx context.Context, topic string) (bool, err
 func (c *Configurator) GetTopicList(ctx context.Context) ([]string, error) {
 
 	deadline, ok := ctx.Deadline()
-
 	if !ok {
 		return nil, errTimeoutRequired
 	}
 
-	remaining := time.Until(deadline)
-
-	metadata, err := c.AdminClient.GetMetadata(nil, true, int(remaining.Milliseconds()))
+	metadata, err := c.AdminClient.GetMetadata(nil, true, int(time.Until(deadline).Milliseconds()))
 	if err != nil {
 		return nil, err
 	}

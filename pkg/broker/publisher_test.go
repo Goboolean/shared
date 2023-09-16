@@ -8,21 +8,24 @@ import (
 
 	"github.com/Goboolean/shared/pkg/broker"
 	"github.com/Goboolean/shared/pkg/resolver"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
-	pub       *broker.Publisher
-	data      = &broker.StockAggregate{}
-	dataBatch = []*broker.StockAggregate{
-		{}, {}, {},
-	}
+	pub  *broker.Publisher
+	data = &broker.StockAggregate{}
 )
 
 func SetupPublisher() {
-	pub = broker.NewPublisher(&resolver.ConfigMap{
+	var err error
+
+	pub, err = broker.NewPublisher(&resolver.ConfigMap{
 		"HOST": os.Getenv("KAFKA_HOST"),
 		"PORT": os.Getenv("KAFKA_PORT"),
 	})
+	if err != nil {
+		panic(err)
+	}
 }
 
 func TeardownPublisher() {
@@ -32,63 +35,44 @@ func TeardownPublisher() {
 func TestPublisher(t *testing.T) {
 
 	SetupPublisher()
+	defer TeardownPublisher()
 
-	ctx, cancelFunc := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancelFunc()
+	t.Run("Ping", func(t *testing.T) {
+		ctx, cancelFunc := context.WithTimeout(context.Background(), 3*time.Second)
+		defer cancelFunc()
 
-	if err := pub.Ping(ctx); err != nil {
-		t.Errorf("Ping() failed: %v", err)
-	}
-
-	TeardownPublisher()
+		if err := pub.Ping(ctx); err != nil {
+			t.Errorf("Ping() failed: %v", err)
+		}
+	})
 }
 
 func Test_SendData(t *testing.T) {
 
-	var topic = "test-topic"
+	const topic = "default-topic"
+
 	SetupPublisher()
-	SetupConfigurator()
+	defer TeardownPublisher()
 
-	ctx, cancelFunc := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancelFunc()
+	t.Run("SendToExistingTopic", func(t *testing.T) {
+		err := pub.SendData(topic, data)
+		assert.NoError(t, err)
+	})
 
-	exists, err := conf.TopicExists(ctx, topic)
-	if err != nil {
-		t.Errorf("failed to check topic exists: %v", err)
-	}
-	if !exists {
-		t.Errorf("topic does not exist")
-	}
+	t.Run("SendToNonExistingTopic", func(t *testing.T) {
+		t.Skip("Skip this test because auto.create.topics.enable may be true")
+		err := pub.SendData("non-existent-topic", data)
+		assert.Error(t, err)
+	})
 
-	if err := pub.SendData(topic, data); err != nil {
-		t.Errorf("SendData() failed: %v", err)
-	}
+	t.Run("SendDataBatch", func(t *testing.T) {
+		var dataBatch = []*broker.StockAggregate{
+			{}, {}, {},
+		}
 
-	TeardownPublisher()
-	TeardownConfigurator()
-}
+		err := pub.SendDataBatch(topic, dataBatch)
+		assert.NoError(t, err)
+	})
 
-func Test_SendDataBatch(t *testing.T) {
-
-	var topic = "test-topic"
-	SetupPublisher()
-	SetupConfigurator()
-
-	ctx, cancelFunc := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancelFunc()
-
-	exists, err := conf.TopicExists(ctx, topic)
-	if err != nil {
-		t.Errorf("failed to check topic exists: %v", err)
-	}
-	if !exists {
-		t.Errorf("topic does not exist")
-	}
-
-	if err := pub.SendDataBatch(topic, dataBatch); err != nil {
-		t.Errorf("SendDataBatch() failed: %v", err)
-	}
-
-	TeardownPublisher()
-	TeardownConfigurator()
+	time.Sleep(1 * time.Second)
 }
