@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/Goboolean/shared/pkg/mongo"
+	"github.com/Goboolean/common/pkg/mongo"
 )
 
 func Test_Commit(t *testing.T) {

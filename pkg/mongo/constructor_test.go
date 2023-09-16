@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Goboolean/shared/pkg/mongo"
-	"github.com/Goboolean/shared/pkg/resolver"
+	"github.com/Goboolean/common/pkg/mongo"
+	"github.com/Goboolean/common/pkg/resolver"
 	"github.com/joho/godotenv"
 )
 

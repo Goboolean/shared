@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Goboolean/shared/pkg/mongo"
+	"github.com/Goboolean/common/pkg/mongo"
 )
 
 func Test_InsertStockBatch(t *testing.T) {

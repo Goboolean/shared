@@ -10,10 +10,10 @@ import (
 
 // Just import this package to get all the env variables at the root of the project
 // Import this package anonymously as shown below:
-// import _ "github.com/Goboolean/shared/internal/util/env"
+// import _ "github.com/Goboolean/common/internal/util/env"
 
 const (
-	rootBase = "shared"
+	rootBase          = "common"
 	containerRootBase = "app"
 )
 

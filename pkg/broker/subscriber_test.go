@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Goboolean/shared/pkg/broker"
-	"github.com/Goboolean/shared/pkg/resolver"
+	"github.com/Goboolean/common/pkg/broker"
+	"github.com/Goboolean/common/pkg/resolver"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	_ "github.com/Goboolean/shared/internal/util/env"
-	"github.com/Goboolean/shared/pkg/broker"
-	"github.com/Goboolean/shared/pkg/resolver"
+	_ "github.com/Goboolean/common/internal/util/env"
+	"github.com/Goboolean/common/pkg/broker"
+	"github.com/Goboolean/common/pkg/resolver"
 )
 
 func SetUp() {

@@ -1,4 +1,4 @@
-module github.com/Goboolean/shared
+module github.com/Goboolean/common
 
 go 1.18
 

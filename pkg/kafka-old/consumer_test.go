@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Goboolean/shared/pkg/kafka-old"
-	"github.com/Goboolean/shared/pkg/resolver"
+	"github.com/Goboolean/common/pkg/kafka-old"
+	"github.com/Goboolean/common/pkg/resolver"
 )
 
 var sub *kafka.Consumer
