@@ -27,7 +27,7 @@ func NewConfigurator(c *resolver.ConfigMap) (*Configurator, error) {
 		return nil, err
 	}
 
-	debug, err := c.GetBoolKeyOptional("DEBUG")
+	debug, exists, err := c.GetBoolKeyOptional("DEBUG")
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func NewConfigurator(c *resolver.ConfigMap) (*Configurator, error) {
 		"bootstrap.servers": address,
 	}
 
-	if debug {
+	if exists && debug {
 		config.SetKey("debug", "security, broker")
 	}
 
