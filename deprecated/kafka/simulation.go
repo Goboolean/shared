@@ -4,11 +4,9 @@ import (
 	"context"
 	"log"
 
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 	"google.golang.org/protobuf/proto"
 )
-
-
 
 func (p *Producer) sendSimEvent(status SimEventStatus, event *SimEvent) error {
 
@@ -25,7 +23,7 @@ func (p *Producer) sendSimEvent(status SimEventStatus, event *SimEvent) error {
 		Value: sarama.ByteEncoder(data),
 	}
 
-	_, _, err = p.producer.SendMessage(msg);
+	_, _, err = p.producer.SendMessage(msg)
 	return err
 }
 
@@ -44,12 +42,9 @@ func (p *Producer) sendSimRollbackEvent(status SimEventStatus, event *SimEvent) 
 		Value: sarama.ByteEncoder(data),
 	}
 
-	_, _, err = p.producer.SendMessage(msg);
+	_, _, err = p.producer.SendMessage(msg)
 	return err
 }
-
-
-
 
 func (p *Producer) SendSimRequestedEvent(event *SimEvent) error {
 	return p.sendSimEvent(SimEventStatusRequested, event)
@@ -91,10 +86,8 @@ func (p *Producer) SendSimFinishedRollbackEvent(event *SimEvent) error {
 	return p.sendSimRollbackEvent(SimEventStatusFinished, event)
 }
 
-
-
 func (c *Consumer) subscribeSimEvent(ctx context.Context, topic string, callback func(*SimEvent)) error {
-	
+
 	pc, err := c.consumer.ConsumePartition(topic, 0, sarama.OffsetOldest)
 	if err != nil {
 		return err
@@ -115,7 +108,7 @@ func (c *Consumer) subscribeSimEvent(ctx context.Context, topic string, callback
 
 			for message := range pc.Messages() {
 
-				var event *SimEvent	
+				var event *SimEvent
 				proto.Unmarshal(message.Value, event)
 
 				callback(event)
@@ -125,8 +118,6 @@ func (c *Consumer) subscribeSimEvent(ctx context.Context, topic string, callback
 
 	return nil
 }
-
-
 
 type SimRequestedEventListener interface {
 	OnRecieveSimRequestedEvent(*SimEvent)
@@ -147,8 +138,6 @@ func (c *Consumer) SubscribeSimRequestedEvent(ctx context.Context, impl SimReque
 	}
 }
 
-
-
 type SimPendingEventListener interface {
 	OnRecieveSimPendingEvent(*SimEvent)
 	OnRecieveSimPendingRollbackEvent(*SimEvent)
@@ -167,7 +156,6 @@ func (c *Consumer) SubscribeSimPendingEvent(ctx context.Context, impl SimPending
 		panic(err)
 	}
 }
-
 
 type SimAllocatedEventListener interface {
 	OnRecieveSimAllocatedEvent(*SimEvent)
@@ -188,7 +176,6 @@ func (c *Consumer) SubscribeSimAllocatedEvent(ctx context.Context, impl SimAlloc
 	}
 }
 
-
 type SimFailedEventListener interface {
 	OnRecieveSimFailedEvent(*SimEvent)
 	OnRecieveSimFailedRollbackEvent(*SimEvent)
@@ -207,7 +194,6 @@ func (c *Consumer) SubscribeSimFailedEvent(ctx context.Context, impl SimFailedEv
 		panic(err)
 	}
 }
-
 
 type SimFinishedEventListener interface {
 	OnRecieveSimFinishedEvent(*SimEvent)

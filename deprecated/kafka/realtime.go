@@ -4,11 +4,9 @@ import (
 	"context"
 	"log"
 
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 	"google.golang.org/protobuf/proto"
 )
-
-
 
 func (p *Producer) sendRealEvent(status RealEventStatus, event *RealEvent) error {
 
@@ -25,7 +23,7 @@ func (p *Producer) sendRealEvent(status RealEventStatus, event *RealEvent) error
 		Value: sarama.ByteEncoder(data),
 	}
 
-	_, _, err = p.producer.SendMessage(msg);
+	_, _, err = p.producer.SendMessage(msg)
 	return err
 }
 
@@ -44,11 +42,9 @@ func (p *Producer) sendRealRollbackEvent(status RealEventStatus, event *RealEven
 		Value: sarama.ByteEncoder(data),
 	}
 
-	_, _, err = p.producer.SendMessage(msg);
+	_, _, err = p.producer.SendMessage(msg)
 	return err
 }
-
-
 
 func (p *Producer) SendRealRequestedEvent(event *RealEvent) error {
 	return p.sendRealEvent(RealEventStatusRequested, event)
@@ -90,10 +86,8 @@ func (p *Producer) SendRealFailedRollbackEvent(event *RealEvent) error {
 	return p.sendRealRollbackEvent(RealEventStatusFailed, event)
 }
 
-
-
 func (c *Consumer) subscribeRealEvent(ctx context.Context, topic string, callback func(*RealEvent)) error {
-	
+
 	pc, err := c.consumer.ConsumePartition(topic, 0, sarama.OffsetOldest)
 	if err != nil {
 		return err
@@ -114,7 +108,7 @@ func (c *Consumer) subscribeRealEvent(ctx context.Context, topic string, callbac
 
 			for message := range pc.Messages() {
 
-				var event *RealEvent	
+				var event *RealEvent
 				proto.Unmarshal(message.Value, event)
 
 				callback(event)
@@ -124,8 +118,6 @@ func (c *Consumer) subscribeRealEvent(ctx context.Context, topic string, callbac
 
 	return nil
 }
-
-
 
 type RealRequestedEventListener interface {
 	OnRecieveRealRequestedEvent(*RealEvent)
@@ -146,8 +138,6 @@ func (c *Consumer) SubscribeRealRequestedEvent(ctx context.Context, impl RealReq
 	}
 }
 
-
-
 type RealPendingEventListener interface {
 	OnRecieveRealPendingEvent(*RealEvent)
 	OnRecieveRealPendingRollbackEvent(*RealEvent)
@@ -166,8 +156,6 @@ func (c *Consumer) SubscribeRealPendingEvent(ctx context.Context, impl RealPendi
 		panic(err)
 	}
 }
-
-
 
 type RealAllocatedEventListener interface {
 	OnRecieveRealAllocatedEvent(*RealEvent)
@@ -188,8 +176,6 @@ func (c *Consumer) SubscribeRealAllocatedEvent(ctx context.Context, impl RealAll
 	}
 }
 
-
-
 type RealCeasedEventListener interface {
 	OnRecieveRealCeasedEvent(*RealEvent)
 	OnRecieveRealCeasedRollbackEvent(*RealEvent)
@@ -208,8 +194,6 @@ func (c *Consumer) SubscribeRealCeasedEvent(ctx context.Context, impl RealCeased
 		panic(err)
 	}
 }
-
-
 
 type RealFailedEventListener interface {
 	OnRecieveRealFailedEvent(*RealEvent)

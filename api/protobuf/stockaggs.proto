@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package api;
 
-option go_package = "github.com/Goboolean/common/pkg/broker";
+option go_package = "github.com/Goboolean/common/deprecated/broker";
 
 message StockAggregate {
   string event_type = 1;

@@ -5,7 +5,7 @@ import (
 	"sync"
 	"testing"
 
-	_ "github.com/Goboolean/common/internal/util/env"
+	_ "github.com/Goboolean/common/pkg/env"
 	log "github.com/sirupsen/logrus"
 )
 

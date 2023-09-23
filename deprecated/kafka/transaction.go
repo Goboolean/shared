@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/Goboolean/common/pkg/resolver"
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 )
 
 type Transaction struct {

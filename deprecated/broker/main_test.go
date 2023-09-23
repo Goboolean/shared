@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	_ "github.com/Goboolean/common/internal/util/env"
-	"github.com/Goboolean/common/pkg/broker"
+	"github.com/Goboolean/common/deprecated/broker"
+	_ "github.com/Goboolean/common/pkg/env"
 	"github.com/Goboolean/common/pkg/resolver"
 )
 

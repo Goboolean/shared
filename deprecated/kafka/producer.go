@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/Goboolean/common/pkg/resolver"
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 )
 
 type Producer struct {

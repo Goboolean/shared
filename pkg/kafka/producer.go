@@ -10,8 +10,8 @@ import (
 	"github.com/confluentinc/confluent-kafka-go/schemaregistry"
 	"github.com/confluentinc/confluent-kafka-go/schemaregistry/serde"
 	"github.com/confluentinc/confluent-kafka-go/schemaregistry/serde/protobuf"
-	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
+	log "github.com/sirupsen/logrus"
 )
 
 
