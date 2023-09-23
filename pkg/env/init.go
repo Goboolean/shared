@@ -1,6 +1,7 @@
 package env
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,10 +13,6 @@ import (
 // Import this package anonymously as shown below:
 // import _ "github.com/Goboolean/common/pkg/env"
 
-const (
-	rootBase          = "common"
-	containerRootBase = "app"
-)
 
 func init() {
 	path, err := filepath.Abs(".")
@@ -23,11 +20,9 @@ func init() {
 		panic(err)
 	}
 
-	for base := filepath.Base(path); base != rootBase && base != containerRootBase; {
+	for err := os.ErrNotExist; os.IsNotExist(err); _, err = os.Stat(filepath.Join(path, "go.mod")) {
 		path = filepath.Dir(path)
-		base = filepath.Base(path)
-
-		if base == "." || base == "/" {
+		if path == "/" {
 			panic(errRootNotFound)
 		}
 	}
@@ -37,8 +32,12 @@ func init() {
 	}
 
 	if err := godotenv.Load(); err != nil {
-		panic(err)
+		path, err := os.Getwd()
+		if err != nil {
+			panic(err)
+		}
+		panic(fmt.Errorf("%v, working directory: %s", err, path))
 	}
 }
 
-var errRootNotFound = fmt.Errorf("could not find root directory, be sure to set root of the project as %s", rootBase)
+var errRootNotFound = errors.New("could not find root directory, be sure to set root of the project as fetch-server")

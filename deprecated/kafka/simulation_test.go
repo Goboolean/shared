@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Goboolean/common/pkg/kafka-old"
+	"github.com/Goboolean/common/deprecated/kafka"
 	"google.golang.org/protobuf/proto"
 )
 

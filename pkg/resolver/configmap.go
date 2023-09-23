@@ -46,6 +46,26 @@ func (c *ConfigMap) GetStringKey(key string) (string, error) {
 }
 
 
+func (c *ConfigMap) GetStringKeyOptional(key string) (string, bool, error) {
+
+	// If the key is not found it just returns default value false
+	// It throws an error if the value is not string
+	errMsg := fmt.Sprintf("value %s is required as string value", key)
+
+	value, exists := (*c)[key]
+	if !exists {
+		return "", false, nil
+	}
+
+	stringValue, ok := value.(string)
+	if !ok {
+		return "", false, fmt.Errorf("failed to parse as string: %s", errMsg)
+	}
+
+	return stringValue, true, nil
+}
+
+
 // GetIntKey returns the value of the key as int
 func (c *ConfigMap) GetIntKey(key string) (int, error) {
 
@@ -108,7 +128,7 @@ func (c *ConfigMap) GetBoolKey(key string) (bool, error) {
 }
 
 
-func (c *ConfigMap) GetBoolKeyOptional(key string) (bool, error) {
+func (c *ConfigMap) GetBoolKeyOptional(key string) (bool, bool, error) {
 
 	// If the key is not found it just returns default value false
 	// It throws an error if the value is not bool
@@ -116,13 +136,13 @@ func (c *ConfigMap) GetBoolKeyOptional(key string) (bool, error) {
 
 	value, exists := (*c)[key]
 	if !exists {
-		return false, nil
+		return false, false, nil
 	}
 
 	boolValue, ok := value.(bool)
 	if !ok {
-		return false, fmt.Errorf("failed to parse as bool: %s", errMsg)
+		return false, false, fmt.Errorf("failed to parse as bool: %s", errMsg)
 	}
 
-	return boolValue, nil
+	return boolValue, true, nil
 }
