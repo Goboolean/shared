@@ -34,3 +34,20 @@ CREATE TABLE store_log (
   PRIMARY KEY (stored_at),
   FOREIGN KEY (product_id) REFERENCES product_meta (id)
 );
+
+CREATE TABLE model_meta(
+  /*All string data is stored in lower case*/
+  id                   varchar(32) NOT NULL, 
+  /* an identifier. 
+  "Even if the model names are the same, 
+  if the model versions differ,
+  they are considered distinct models.".*/
+  name               varchar(32) NOT NULL, /* human readable model name */
+  version            varchar(32) NOT NULL, /* version of model. It MUST fallows "v%d.%d.%d" form */
+  NumOfInput         int,        NOT NULL, /* number of input required by model*/
+	NumOfOutput        int,        NOT NULL, /* number of output data of model*/
+  out_category       varchar(16) NOT NULL, /* category of output data in lower case.*/
+  last_training_date timestamp
+
+  PRIMARY KEY (id)
+)
