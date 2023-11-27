@@ -21,7 +21,8 @@ func init() {
 		panic(err)
 	}
 
-	for err := os.ErrNotExist; os.IsNotExist(err); _, err = os.Stat(filepath.Join(path, "go.mod")) {
+	_, err = os.Stat(filepath.Join(path, "go.mod"))
+	for ; os.IsNotExist(err); _, err = os.Stat(filepath.Join(path, "go.mod")) {
 		path = filepath.Dir(path)
 		if path == "/" {
 			panic(errRootNotFound)
