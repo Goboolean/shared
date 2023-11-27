@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/joho/godotenv"
+	"github.com/fatih/color"
 )
 
 // Just import this package to get all the env variables at the root of the project
@@ -32,11 +33,9 @@ func init() {
 	}
 
 	if err := godotenv.Load(); err != nil {
-		path, err := os.Getwd()
-		if err != nil {
-			panic(err)
-		}
-		panic(fmt.Errorf("%v, working directory: %s", err, path))
+		warn := color.New(color.FgYellow).PrintfFunc()
+		warn("WARN")
+		fmt.Println("[0000] No .env file found")
 	}
 }
 
